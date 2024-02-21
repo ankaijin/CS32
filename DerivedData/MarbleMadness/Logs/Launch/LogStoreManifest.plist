@@ -128,6 +128,67 @@
 			<key>uniqueIdentifier</key>
 			<string>324DFC17-769B-4404-828F-F80868326881</string>
 		</dict>
+		<key>3ED5C9B9-ED7C-409D-AE61-6FCF08D9CA1F</key>
+		<dict>
+			<key>auxiliaryLogUniqueIdentifier</key>
+			<string>E60A318D-3DAD-4918-8401-DD801E8887C4</string>
+			<key>auxiliaryObservable</key>
+			<dict>
+				<key>highLevelStatus</key>
+				<string>S</string>
+				<key>totalNumberOfAnalyzerIssues</key>
+				<integer>0</integer>
+				<key>totalNumberOfErrors</key>
+				<integer>0</integer>
+				<key>totalNumberOfTestFailures</key>
+				<integer>0</integer>
+				<key>totalNumberOfWarnings</key>
+				<integer>0</integer>
+			</dict>
+			<key>className</key>
+			<string>IDESchemeActionsInvocationRecord</string>
+			<key>documentTypeString</key>
+			<string>&lt;nil&gt;</string>
+			<key>domainType</key>
+			<string>com.apple.dt.IDE.LaunchSchemeAction</string>
+			<key>fileName</key>
+			<string>Run-MarbleMadness-2024.02.21_11-08-50--0800.xcresult</string>
+			<key>hasAuxiliaryLog</key>
+			<true/>
+			<key>hasConsoleLog</key>
+			<true/>
+			<key>hasPrimaryLog</key>
+			<true/>
+			<key>primaryObservable</key>
+			<dict>
+				<key>highLevelStatus</key>
+				<string>S</string>
+				<key>totalNumberOfAnalyzerIssues</key>
+				<integer>0</integer>
+				<key>totalNumberOfErrors</key>
+				<integer>0</integer>
+				<key>totalNumberOfTestFailures</key>
+				<integer>0</integer>
+				<key>totalNumberOfWarnings</key>
+				<integer>0</integer>
+			</dict>
+			<key>schemeIdentifier-containerName</key>
+			<string>MarbleMadness project</string>
+			<key>schemeIdentifier-schemeName</key>
+			<string>MarbleMadness</string>
+			<key>schemeIdentifier-sharedScheme</key>
+			<integer>1</integer>
+			<key>signature</key>
+			<string>Run MarbleMadness</string>
+			<key>timeStartedRecording</key>
+			<real>730235330.71313798</real>
+			<key>timeStoppedRecording</key>
+			<real>0.0</real>
+			<key>title</key>
+			<string>Run MarbleMadness</string>
+			<key>uniqueIdentifier</key>
+			<string>3ED5C9B9-ED7C-409D-AE61-6FCF08D9CA1F</string>
+		</dict>
 		<key>59198101-7A25-44ED-AC69-48D5F7A15DAD</key>
 		<dict>
 			<key>auxiliaryLogUniqueIdentifier</key>
