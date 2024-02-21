@@ -28,6 +28,7 @@ class Player : public Actor
   public:
     Player(StudentWorld* sw, int x, int y);
     int getPeas() const;
+    void addPeas();
     void doSomething();
     
   private:
@@ -84,6 +85,13 @@ class RestoreHealth : public Item
     void doSomething();
 };
 
+class RestoreAmmo : public Item
+{
+  public:
+    RestoreAmmo(StudentWorld* sw, int x, int y);
+    void doSomething();
+};
+
 // maybe declare these inline function inside of their classes
 
 inline int Actor::getHP() const
@@ -118,6 +126,11 @@ inline bool Actor::isPit() const
 inline int Player::getPeas() const
 {
     return numPeas;
+}
+
+inline void Player::addPeas()
+{
+    numPeas += 20;
 }
 
 inline bool Wall::isObstacle() const

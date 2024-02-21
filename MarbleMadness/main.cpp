@@ -13,7 +13,6 @@ using namespace std;
 const string assetDirectory = "/Users/ankaijin/Desktop/CS32 Xcode/MarbleMadness/DerivedData/MarbleMadness/Build/Products/Debug/Assets";
 const int msPerTick = 10;  // 10ms per tick; increase this if game moves too fast
 
-
 #ifdef _MSC_VER
 #include <windows.h>
 bool is_directory(string path)

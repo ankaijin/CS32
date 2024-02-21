@@ -123,6 +123,7 @@ int StudentWorld::init()    // initializes level
                     m_actors.push_back(new ExtraLife(this, column, row));
                     break;
                 case Level::ammo:
+                    m_actors.push_back(new RestoreAmmo(this, column, row));
                     break;
                 case Level::player:
                     m_player = new Player(this, column, row);

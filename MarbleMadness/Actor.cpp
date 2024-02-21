@@ -10,7 +10,7 @@ Actor::Actor(int IID, StudentWorld* sw, int x, int y, int dir)
 Player::Player(StudentWorld* sw, int x, int y)
  : Actor(IID_PLAYER, sw, x, y, GraphObject::right)
 {
-    changeHP(18);   // change back to 20
+    changeHP(20);   // change back to 20
     numPeas = 20;
 }
 
@@ -130,7 +130,7 @@ void Pit::doSomething()
     }
 }
 
-Item::Item(StudentWorld* sw, int x, int y, int IID)
+Item::Item(StudentWorld* sw, int x, int y, int IID) // all items have no direction and 1 hp
  : Actor(IID, sw, x, y, GraphObject::none)
 {
     changeHP(1);    // will stay alive until collected
@@ -183,9 +183,28 @@ void RestoreHealth::doSomething()
     
     if (getWorld()->getPlayer()->getX() == getX() && getWorld()->getPlayer()->getY() == getY())
     {
-        int difference = 20 - (getWorld()->getPlayer()->getHP());
-        getWorld()->getPlayer()->changeHP(difference);
+        getWorld()->increaseScore(500);
         changeHP(-1);
         getWorld()->playSound(SOUND_GOT_GOODIE);
+        int difference = 20 - (getWorld()->getPlayer()->getHP());
+        getWorld()->getPlayer()->changeHP(difference);
+    }
+}
+
+RestoreAmmo::RestoreAmmo(StudentWorld* sw, int x, int y)
+ : Item(sw, x, y, IID_AMMO)
+{
+}
+
+void RestoreAmmo::doSomething()
+{
+    if (getHP() <= 0) return;
+    
+    if (getWorld()->getPlayer()->getX() == getX() && getWorld()->getPlayer()->getY() == getY())
+    {
+        getWorld()->increaseScore(100);
+        changeHP(-1);
+        getWorld()->playSound(SOUND_GOT_GOODIE);
+        getWorld()->getPlayer()->addPeas();
     }
 }
