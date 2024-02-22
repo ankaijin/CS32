@@ -10,12 +10,15 @@ class Actor : public GraphObject
     virtual bool isObstacle() const;
     virtual bool isMarble() const;
     virtual bool isPit() const;
-    virtual void doSomething() {} // should this be pure virtual?
+    virtual void doSomething() {} // WEIZHEN WANG WOULD DISAPPROVE
+    virtual void push(int x, int y) {}
+    virtual bool damage();
     void changeHP(int howMuch); // should be protected but is not working
     int getHP() const;
     
   protected:
     Actor(int IID, StudentWorld* sw, int x, int y, int dir);
+    void getXY(int& x, int& y, int dir);
     StudentWorld* getWorld() const;
     
   private:
@@ -30,6 +33,7 @@ class Player : public Actor
     int getPeas() const;
     void addPeas();
     void doSomething();
+    bool damage();
     
   private:
     void move(int dir);
@@ -43,10 +47,11 @@ class Wall : public Actor
     bool isObstacle() const;
 };
 
-class Marble : public Actor
+class Marble : public Actor // make a push method for the player to push the marble
 {
   public:
     Marble(StudentWorld* sw, int x, int y);
+    void push(int x, int y);
     bool isMarble() const;
 };
 
@@ -61,7 +66,11 @@ class Pit : public Wall
 class Item : public Actor
 {
   public:
-    Item(StudentWorld* sw, int x, int y, int IID);
+    Item(StudentWorld* sw, int x, int y, int IID, int increaseScoreBy);
+  protected:
+    bool action();
+  private:
+    int plusScore;
 };
 
 class Crystal : public Item
@@ -92,6 +101,13 @@ class RestoreAmmo : public Item
     void doSomething();
 };
 
+class Pea : public Actor
+{
+  public:
+    Pea(StudentWorld* sw, int x, int y, int dir);
+    void doSomething();
+};
+
 // maybe declare these inline function inside of their classes
 
 inline int Actor::getHP() const
@@ -118,8 +134,15 @@ inline bool Actor::isMarble() const
 {
     return false;
 }
+
 inline bool Actor::isPit() const
 {
+    return false;
+}
+
+inline bool Actor::damage()
+{
+    // ADD LATER
     return false;
 }
 

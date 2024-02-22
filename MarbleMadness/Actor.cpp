@@ -7,16 +7,8 @@ Actor::Actor(int IID, StudentWorld* sw, int x, int y, int dir)
 {
 }
 
-Player::Player(StudentWorld* sw, int x, int y)
- : Actor(IID_PLAYER, sw, x, y, GraphObject::right)
+void Actor::getXY(int& x, int& y, int dir)
 {
-    changeHP(20);   // change back to 20
-    numPeas = 20;
-}
-
-void Player::move(int dir)
-{
-    int x = 0, y = 0;
     switch(dir)
     {
         case GraphObject::left:
@@ -32,6 +24,19 @@ void Player::move(int dir)
             y = -1;
             break;
     }
+}
+
+Player::Player(StudentWorld* sw, int x, int y)
+ : Actor(IID_PLAYER, sw, x, y, GraphObject::right)
+{
+    changeHP(20);   // change back to 20
+    numPeas = 20;
+}
+
+void Player::move(int dir)
+{
+    int x = 0, y = 0;
+    getXY(x, y, dir);
     
     setDirection(dir);    // make avatar face in the proper direction
     Actor* adjacentActor1 = getWorld()->atPosition(getX() + x, getY() + y);
@@ -43,15 +48,8 @@ void Player::move(int dir)
         marble = adjacentActor1->isMarble();
     }
     
-    if (marble) // fix unneeded code and check for edge cases
-    {
-        Actor* adjacentActor2 = getWorld()->atPosition(getX() + (2 * x), getY() + (2 * y));
-        if (adjacentActor2 == nullptr || adjacentActor2->isPit())
-        {
-            adjacentActor1->moveTo(getX() + (2 * x), getY() + (2 * y));
-            moveTo(getX() + x, getY() + y);
-        }
-    }
+    if (marble)
+        adjacentActor1->push(x, y);
     else if (!obstacle)
         moveTo(getX() + x, getY() + y);   // moveTo() that space
     // don't move if there is an obstacle
@@ -79,8 +77,18 @@ void Player::doSomething()
             case KEY_PRESS_DOWN:
                 move(GraphObject::down);    // make avatar face left
                 break;
-            case KEY_PRESS_SPACE:   // fire a pea
+            case KEY_PRESS_SPACE:   
+            {
+                // fire a pea
+                // create new pea one block in front of the direction the player is facing
+                // decrease numPeas by 1
+                int x = 0, y = 0;
+                getXY(x, y, getDirection());
+                getWorld()->createPea(getX() + x, getY() + y, getDirection());  // call createPea()
+                numPeas--;
+                getWorld()->playSound(SOUND_PLAYER_FIRE);
                 break;
+            }
             case KEY_PRESS_ESCAPE:  // abort
                 changeHP(-20);
                 break;
@@ -102,6 +110,16 @@ Marble::Marble(StudentWorld* sw, int x, int y)
  : Actor(IID_MARBLE, sw, x, y, GraphObject::none)
 {
     changeHP(10);
+}
+
+void Marble::push(int x, int y)
+{
+    Actor* adjacentActor2 = getWorld()->atPosition(getX() + x, getY() + y);
+    if (adjacentActor2 == nullptr || adjacentActor2->isPit())
+    {
+        moveTo(getX() + x, getY() + y);
+        getWorld()->getPlayer()->moveTo(getX() - x, getY() - y);
+    }
 }
 
 Pit::Pit(StudentWorld* sw, int x, int y)
@@ -130,81 +148,109 @@ void Pit::doSomething()
     }
 }
 
-Item::Item(StudentWorld* sw, int x, int y, int IID) // all items have no direction and 1 hp
- : Actor(IID, sw, x, y, GraphObject::none)
+Item::Item(StudentWorld* sw, int x, int y, int IID, int IncreaseScoreBy) // all items have no direction and 1 hp
+ : Actor(IID, sw, x, y, GraphObject::none), plusScore(IncreaseScoreBy)
 {
     changeHP(1);    // will stay alive until collected
 }
 
+bool Item::action()
+{
+    if (getHP() <= 0) return false;
+    
+    if (getWorld()->getPlayer()->getX() == getX() && getWorld()->getPlayer()->getY() == getY())
+    {
+        getWorld()->increaseScore(plusScore);
+        changeHP(-1);
+        getWorld()->playSound(SOUND_GOT_GOODIE);
+        return true;
+    }
+    
+    return false;
+}
+
 Crystal::Crystal(StudentWorld* sw, int x, int y)
- : Item(sw, x, y, IID_CRYSTAL)
+ : Item(sw, x, y, IID_CRYSTAL, 50)
 {
 }
 
 void Crystal::doSomething()
 {
-    if (getHP() <= 0) return;
-    
-    if (getWorld()->getPlayer()->getX() == getX() && getWorld()->getPlayer()->getY() == getY())
-    {
-        getWorld()->increaseScore(50);
-        changeHP(-1);
+    if (action())
         getWorld()->collectCrystal();
-        getWorld()->playSound(SOUND_GOT_GOODIE);
-    }
 }
 
 ExtraLife::ExtraLife(StudentWorld* sw, int x, int y)
- : Item(sw, x, y, IID_EXTRA_LIFE)
+ : Item(sw, x, y, IID_EXTRA_LIFE, 1000)
 {
 }
 
 void ExtraLife::doSomething()
 {
-    if (getHP() <= 0) return;
-    
-    if (getWorld()->getPlayer()->getX() == getX() && getWorld()->getPlayer()->getY() == getY())
-    {
-        getWorld()->increaseScore(1000);
-        changeHP(-1);
-        getWorld()->playSound(SOUND_GOT_GOODIE);
+    if (action())
         getWorld()->incLives();
-    }
 }
 
 RestoreHealth::RestoreHealth(StudentWorld* sw, int x, int y)
- : Item(sw, x, y, IID_RESTORE_HEALTH)
+ : Item(sw, x, y, IID_RESTORE_HEALTH, 500)
 {
 }
 
 void RestoreHealth::doSomething()
 {
-    if (getHP() <= 0) return;
-    
-    if (getWorld()->getPlayer()->getX() == getX() && getWorld()->getPlayer()->getY() == getY())
+    if (action())
     {
-        getWorld()->increaseScore(500);
-        changeHP(-1);
-        getWorld()->playSound(SOUND_GOT_GOODIE);
         int difference = 20 - (getWorld()->getPlayer()->getHP());
         getWorld()->getPlayer()->changeHP(difference);
     }
 }
 
 RestoreAmmo::RestoreAmmo(StudentWorld* sw, int x, int y)
- : Item(sw, x, y, IID_AMMO)
+ : Item(sw, x, y, IID_AMMO, 100)
 {
 }
 
 void RestoreAmmo::doSomething()
 {
+    if (action())
+        getWorld()->getPlayer()->addPeas();
+}
+
+Pea::Pea(StudentWorld* sw, int x, int y, int dir)
+ : Actor(IID_PEA, sw, x, y, dir)
+{
+    // add stuff?
+    changeHP(1);
+}
+
+void Pea::doSomething()
+{
     if (getHP() <= 0) return;
     
-    if (getWorld()->getPlayer()->getX() == getX() && getWorld()->getPlayer()->getY() == getY())
+    Actor* sameSquare = getWorld()->atPosition(getX(), getY());
+    int x = 0, y = 0;
+    // THE FOLLOWING LOGIC SHOULD BE FIXED WHEN MORE FEATURES ARE ADDED
+    if (sameSquare != nullptr)  // if there is an actor on the same square
     {
-        getWorld()->increaseScore(100);
-        changeHP(-1);
-        getWorld()->playSound(SOUND_GOT_GOODIE);
-        getWorld()->getPlayer()->addPeas();
+        if (sameSquare->damage())   // damage it appropriately
+        {
+            changeHP(-1);   // destroy itself
+        }
+        else    // if it can't be damaged
+        {       // move it forward
+            getXY(x, y, getDirection());
+            moveTo(getX() + x, getY() + y);
+        }
     }
+    else    // no actor on the same square
+    {       // move it one square
+        getXY(x, y, getDirection());
+        moveTo(getX() + x, getY() + y);
+    }
+    
+    if (getHP() <= 0) return;   // if pea has died, leave this function
+    
+    sameSquare = getWorld()->atPosition(getX(), getY());
+    if (sameSquare != nullptr && sameSquare->damage())
+        changeHP(-1);
 }

@@ -74,6 +74,11 @@ void StudentWorld::setDisplayText() // read up on stringstreams
     setGameStatText(s); // calls our provided GameWorld::setGameStatText
 }
 
+void StudentWorld::createPea(int x, int y, int dir)    // CHECK
+{
+    m_actors.push_back(new Pea(this, x, y, dir));
+}
+
 int StudentWorld::init()    // initializes level
 {
     string curLevel = "level00.txt";

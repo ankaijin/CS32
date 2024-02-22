@@ -8,6 +8,7 @@
 
 class Actor;
 class Player;
+class Pea; // am I allowed to add this?
 
 class StudentWorld : public GameWorld
 {
@@ -20,6 +21,7 @@ class StudentWorld : public GameWorld
     int getBonus();
     void decreaseBonus();
     void collectCrystal();
+    void createPea(int x, int y, int dir);
     virtual int init();
     virtual int move();
     virtual void cleanUp();
