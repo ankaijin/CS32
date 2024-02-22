@@ -26,6 +26,11 @@ void Actor::getXY(int& x, int& y, int dir)
     }
 }
 
+bool Wall::damage()
+{
+    return true;
+}
+
 Player::Player(StudentWorld* sw, int x, int y)
  : Actor(IID_PLAYER, sw, x, y, GraphObject::right)
 {
@@ -100,8 +105,18 @@ void Player::doSomething()
     }
 }
 
-Wall::Wall(StudentWorld* sw, int x, int y, int IID)
- : Actor(IID, sw, x, y, GraphObject::none)
+bool Player::damage()
+{
+    changeHP(-2);
+    if (getHP() > 0)
+        getWorld()->playSound(SOUND_PLAYER_IMPACT);
+    else
+        getWorld()->playSound(SOUND_PLAYER_DIE);    // also set player's state to dead
+    return true;
+}
+
+Wall::Wall(StudentWorld* sw, int x, int y)
+ : Actor(IID_WALL, sw, x, y, GraphObject::none)
 {
     changeHP(1);    // will always be alive
 }
@@ -122,9 +137,16 @@ void Marble::push(int x, int y)
     }
 }
 
+bool Marble::damage()
+{
+    changeHP(-2);
+    return true;
+}
+
 Pit::Pit(StudentWorld* sw, int x, int y)
- : Wall(sw, x, y, IID_PIT)
-{    // will be alive until filled by a marble
+ : Actor(IID_PIT, sw, x, y, GraphObject::none)
+{
+    changeHP(1);    // will be alive until filled by a marble
 }
 
 void Pit::doSomething()
@@ -236,7 +258,7 @@ void Pea::doSomething()
         {
             changeHP(-1);   // destroy itself
         }
-        else    // if it can't be damaged
+        else    // if the actor can't be damaged
         {       // move it forward
             getXY(x, y, getDirection());
             moveTo(getX() + x, getY() + y);

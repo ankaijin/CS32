@@ -109,7 +109,7 @@ int StudentWorld::init()    // initializes level
                 case Level::mean_thiefbot_factory:
                     break;
                 case Level::wall:
-                    m_actors.push_back(new Wall(this, column, row, IID_WALL));
+                    m_actors.push_back(new Wall(this, column, row));
                     break;
                 case Level::marble:
                     m_actors.push_back(new Marble(this, column, row));

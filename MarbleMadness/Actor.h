@@ -43,8 +43,9 @@ class Player : public Actor
 class Wall : public Actor
 {
   public:
-    Wall(StudentWorld* sw, int x, int y, int IID);
+    Wall(StudentWorld* sw, int x, int y);
     bool isObstacle() const;
+    bool damage();
 };
 
 class Marble : public Actor // make a push method for the player to push the marble
@@ -53,12 +54,14 @@ class Marble : public Actor // make a push method for the player to push the mar
     Marble(StudentWorld* sw, int x, int y);
     void push(int x, int y);
     bool isMarble() const;
+    bool damage();
 };
 
-class Pit : public Wall
+class Pit : public Actor
 {
   public:
     Pit(StudentWorld* sw, int x, int y);
+    bool isObstacle() const;
     bool isPit() const;
     void doSomething();
 };
@@ -162,6 +165,11 @@ inline bool Wall::isObstacle() const
 }
 
 inline bool Marble::isMarble() const
+{
+    return true;
+}
+
+inline bool Pit::isObstacle() const
 {
     return true;
 }
