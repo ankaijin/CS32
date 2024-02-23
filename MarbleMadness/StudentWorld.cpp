@@ -15,7 +15,7 @@ GameWorld* createStudentWorld(string assetPath)
 }
 
 StudentWorld::StudentWorld(string assetPath)
-: GameWorld(assetPath), m_bonus(1000), numCrystals(0)
+: GameWorld(assetPath), m_bonus(1000), numCrystals(0), levelCompleted(false), exitRevealed(false)
 {
 }
 
@@ -81,10 +81,16 @@ void StudentWorld::createPea(int x, int y, int dir)    // CHECK
 
 int StudentWorld::init()    // initializes level
 {
-    string curLevel = "level00.txt";
+    ostringstream oss;  // FIX LOAD LEVEL code
+    oss.fill('0');
+    oss << setw(2) << getLevel();
     Level lev(assetPath());
+    string s = oss.str();
+    string curLevel = "Level" + s + ".txt";
     Level::LoadResult result = lev.loadLevel(curLevel);
-    if (result == Level::load_fail_file_not_found || result == Level:: load_fail_bad_format)
+    if (result == Level::load_fail_file_not_found || getLevel() > 99)
+        return GWSTATUS_PLAYER_WON;
+    if (result == Level:: load_fail_bad_format)
         return -1; // something bad happened!
     
     // otherwise the load was successful and you can access the
@@ -99,6 +105,9 @@ int StudentWorld::init()    // initializes level
                 case Level::empty:
                     break;
                 case Level::exit:
+                    m_actors.push_back(new Exit(this, column, row));
+                    exitX = column;
+                    exitY = row;
                     break;
                 case Level::horiz_ragebot:
                     break;
@@ -148,33 +157,23 @@ int StudentWorld::move()    // facilitates gameplay
  // The term "actors" refers to all robots, the player, Goodies,
  // Marbles, Crystals, Pits, Peas, the exit, etc.
  // Give each actor a chance to do something
-
-    m_player->doSomething();
     
-    for (Actor* currActor : m_actors)
+    for (Actor* currActor : m_actors)   // for each of the actors in the game world
     {
-        if (currActor->getHP() > 0)
+        if (currActor->getHP() > 0) //  if (actor[i] is still active/alive)
         {
-            currActor->doSomething();
-            if (m_player->getHP() <= 0)
+            currActor->doSomething();   //  ask each actor to do something (e.g. move)
+            if (m_player->getHP() <= 0) // if (thePlayerDiedDuringThisTick()) return GWSTATUS_PLAYER_DIED;
                 return GWSTATUS_PLAYER_DIED;
         }
     }
+    
+    m_player->doSomething();
 /*
-for each of the actors in the game world
-{
- if (actor[i] is still active/alive)
- {
- // ask each actor to do something (e.g. move)
- actor[i]->doSomething();
-if (thePlayerDiedDuringThisTick())
-return GWSTATUS_PLAYER_DIED;
 if (thePlayerCompletedTheCurrentLevel())
 {
 increaseScoreAppropriately();
 return GWSTATUS_FINISHED_LEVEL;
-}
- }
 }
  */
 // Remove newly-dead actors after each tick
@@ -192,22 +191,28 @@ return GWSTATUS_FINISHED_LEVEL;
     }
 // Reduce the current bonus for the Level by one
     decreaseBonus();
-/*
+
 // If the player has collected all of the crystals on the level, then we
 // must expose the exit so the player can advance to the next level
-if (numCrystals == 0)
-exposeTheExitInTheMaze(); // make the exit Active
+    if (numCrystals == 0 && !exitRevealed)
+    {
+        exitRevealed = true;
+        // exposeTheExitInTheMaze(), make the exit Active
+        atPosition(exitX, exitY)->makeVisible();
+        playSound(SOUND_REVEAL_EXIT);
+    }
+
 // return the proper result
-if (thePlayerDiedDuringThisTick())
-return GWSTATUS_PLAYER_DIED;
-if (thePlayerCompletedTheCurrentLevel())
-{
-increaseScoreAppropriately();
-return GWSTATUS_FINISHED_LEVEL;
-}
+    if (m_player->getHP() <= 0)
+        return GWSTATUS_PLAYER_DIED;
+
+    if (levelCompleted)
+    {
+        increaseScore(getBonus());
+        return GWSTATUS_FINISHED_LEVEL;
+    }
 // the player hasn’t completed the current level and hasn’t died, so
 // continue playing the current level
-*/
     return GWSTATUS_CONTINUE_GAME;
 }
 
@@ -220,7 +225,12 @@ void StudentWorld::cleanUp()    // deletes everything
         delete *it;
         it = m_actors.erase(it);  // erase returns the item following the item erased
     }
+    
     if (m_player != nullptr)
         delete m_player;
     m_player = nullptr;
+    
+    exitRevealed = false;
+    levelCompleted = false;
+    m_bonus = 1000;
 }

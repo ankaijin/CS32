@@ -12,6 +12,7 @@ class Actor : public GraphObject
     virtual bool isPit() const;
     virtual void doSomething() {} // WEIZHEN WANG WOULD DISAPPROVE
     virtual void push(int x, int y) {}
+    virtual void makeVisible() {}
     virtual bool damage();
     void changeHP(int howMuch); // should be protected but is not working
     int getHP() const;
@@ -111,6 +112,14 @@ class Pea : public Actor
     void doSomething();
 };
 
+class Exit : public Actor
+{
+  public:
+    Exit(StudentWorld* sw, int x, int y);
+    void doSomething();
+    void makeVisible();
+};
+
 // maybe declare these inline function inside of their classes
 
 inline int Actor::getHP() const
@@ -177,6 +186,11 @@ inline bool Pit::isObstacle() const
 inline bool Pit::isPit() const
 {
     return true;
+}
+
+inline void Exit::makeVisible()
+{
+    setVisible(true);
 }
 
 #endif // ACTOR_H_

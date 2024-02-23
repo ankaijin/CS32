@@ -276,3 +276,23 @@ void Pea::doSomething()
     if (sameSquare != nullptr && sameSquare->damage())
         changeHP(-1);
 }
+
+Exit::Exit(StudentWorld* sw, int x, int y)
+ : Actor(IID_EXIT, sw, x, y, GraphObject::none)
+{
+    changeHP(1);    // always alive
+    setVisible(false);
+}
+
+void Exit::doSomething()
+{
+    if (getWorld()->getNumCrystals() == 0)
+    {
+        if (getWorld()->getPlayer()->getX() == getX() && getWorld()->getPlayer()->getY() == getY())
+        {
+            getWorld()->playSound(SOUND_FINISHED_LEVEL);
+            getWorld()->increaseScore(2000);
+            getWorld()->completeLevel();    // tell StudentWorld that player must also receive bonus points
+        }
+    }
+}

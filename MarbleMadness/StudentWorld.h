@@ -21,7 +21,9 @@ class StudentWorld : public GameWorld
     int getBonus();
     void decreaseBonus();
     void collectCrystal();
+    int getNumCrystals();
     void createPea(int x, int y, int dir);
+    void completeLevel();
     virtual int init();
     virtual int move();
     virtual void cleanUp();
@@ -32,6 +34,10 @@ class StudentWorld : public GameWorld
     std::list<Actor*> m_actors;
     int m_bonus;
     int numCrystals;
+    bool levelCompleted;
+    bool exitRevealed;
+    int exitX;  // check if I still need these
+    int exitY;
 };
 
 inline
@@ -57,6 +63,18 @@ inline
 void StudentWorld::collectCrystal()
 {
     numCrystals--;
+}
+
+inline
+int StudentWorld::getNumCrystals()
+{
+    return numCrystals;
+}
+
+inline
+void StudentWorld::completeLevel()
+{
+    levelCompleted = true;
 }
 
 #endif // STUDENTWORLD_H_
