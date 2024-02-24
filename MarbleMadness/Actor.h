@@ -10,6 +10,9 @@ class Actor : public GraphObject
     virtual bool isObstacle() const;
     virtual bool isMarble() const;
     virtual bool isPit() const;
+    virtual bool robotFireAt() const;
+    virtual bool canSteal() const;
+    virtual int typeOfGoodie() const;   // extra life: 1, restore health: 2, ammo: 3, default: 0
     virtual void doSomething() {}
     virtual void push(int x, int y) {}
     virtual void makeVisible() {}
@@ -47,6 +50,7 @@ class Wall : public Actor
   public:
     Wall(StudentWorld* sw, int x, int y);
     bool isObstacle() const;
+    bool robotFireAt() const;
     bool damage();
 };
 
@@ -56,6 +60,7 @@ class Marble : public Actor // make a push method for the player to push the mar
     Marble(StudentWorld* sw, int x, int y);
     void push(int x, int y);
     bool isMarble() const;
+    bool robotFireAt() const;
     bool damage();
 };
 
@@ -70,10 +75,8 @@ class Pit : public Actor
 
 class Item : public Actor
 {
-  public:
-    Item(StudentWorld* sw, int x, int y, int IID, int increaseScoreBy);
-    
   protected:
+    Item(StudentWorld* sw, int x, int y, int IID, int increaseScoreBy);
     bool action();
     
   private:
@@ -87,24 +90,36 @@ class Crystal : public Item
     void doSomething();
 };
 
-class ExtraLife : public Item
+class Goodie : public Item
+{
+  public:
+    bool canSteal() const;
+    
+  protected:
+    Goodie(StudentWorld* sw, int x, int y, int IID, int increaseScoreBy);
+};
+
+class ExtraLife : public Goodie
 {
   public:
     ExtraLife(StudentWorld*sw, int x, int y);
+    int typeOfGoodie() const;
     void doSomething();
 };
 
-class RestoreHealth : public Item
+class RestoreHealth : public Goodie
 {
   public:
     RestoreHealth(StudentWorld* sw, int x, int y);
+    int typeOfGoodie() const;
     void doSomething();
 };
 
-class RestoreAmmo : public Item
+class RestoreAmmo : public Goodie
 {
   public:
     RestoreAmmo(StudentWorld* sw, int x, int y);
+    int typeOfGoodie() const;
     void doSomething();
 };
 
@@ -127,6 +142,12 @@ class Enemy : public Actor
 {
   public:
     bool isObstacle() const;
+    bool robotFireAt() const;
+    int getCurrTick() const;
+    int getTicks() const;
+    void addCurrTick(int howMuch);
+    int getGoodieType() const;
+    void setGoodieType(int t);
     bool damage();
     
   protected:
@@ -134,6 +155,9 @@ class Enemy : public Actor
     
   private:
     int m_points;
+    int ticks;
+    int currTick;
+    int goodieType; // only ThiefBot will use this
 };
 
 class RageBot : public Enemy
@@ -143,8 +167,18 @@ class RageBot : public Enemy
     void doSomething();
     
   private:
-    int ticks;
-    int currTick;
+    void move(int dir);
+};
+
+class ThiefBot : public Enemy
+{
+  public:
+    ThiefBot(StudentWorld* sw, int x, int y);
+    void doSomething();
+  private:
+    void move(int& currDist, int dir);
+    int currDistance;
+    int distanceBeforeTurning;
 };
 
 // maybe declare these inline function inside of their classes
@@ -185,6 +219,21 @@ inline bool Actor::damage()
     return false;
 }
 
+inline bool Actor::robotFireAt() const
+{
+    return true;
+}
+
+inline bool Actor::canSteal() const
+{
+    return false;
+}
+
+inline int Actor::typeOfGoodie() const
+{
+    return 0;
+}
+
 inline int Player::getPeas() const
 {
     return numPeas;
@@ -205,6 +254,11 @@ inline bool Wall::damage()
     return true;
 }
 
+inline bool Wall::robotFireAt() const
+{
+    return false;
+}
+
 inline bool Wall::isObstacle() const
 {
     return true;
@@ -213,6 +267,11 @@ inline bool Wall::isObstacle() const
 inline bool Marble::isMarble() const
 {
     return true;
+}
+
+inline bool Marble::robotFireAt() const
+{
+    return false;
 }
 
 inline bool Pit::isObstacle() const
@@ -225,6 +284,26 @@ inline bool Pit::isPit() const
     return true;
 }
 
+inline bool Goodie::canSteal() const
+{
+    return true;
+}
+
+inline int ExtraLife::typeOfGoodie() const
+{
+    return 1;
+}
+
+inline int RestoreHealth::typeOfGoodie() const
+{
+    return 2;
+}
+
+inline int RestoreAmmo::typeOfGoodie() const
+{
+    return 3;
+}
+
 inline void Exit::makeVisible()
 {
     setVisible(true);
@@ -233,5 +312,35 @@ inline void Exit::makeVisible()
 inline bool Enemy::isObstacle() const
 {
     return true;
+}
+
+inline bool Enemy::robotFireAt() const
+{
+    return false;
+}
+
+inline int Enemy::getCurrTick() const
+{
+    return currTick;
+}
+
+inline int Enemy::getTicks() const
+{
+    return ticks;
+}
+
+inline void Enemy::addCurrTick(int howMuch)
+{
+    currTick += howMuch;
+}
+
+inline int Enemy::getGoodieType() const
+{
+    return goodieType;
+}
+
+inline void Enemy::setGoodieType(int t)
+{
+    goodieType = t;
 }
 #endif // ACTOR_H_

@@ -197,8 +197,13 @@ void Crystal::doSomething()
         getWorld()->collectCrystal();
 }
 
+Goodie::Goodie(StudentWorld* sw, int x, int y, int IID, int increaseScoreBy)
+ : Item(sw, x, y, IID, increaseScoreBy)
+{
+}
+
 ExtraLife::ExtraLife(StudentWorld* sw, int x, int y)
- : Item(sw, x, y, IID_EXTRA_LIFE, 1000)
+ : Goodie(sw, x, y, IID_EXTRA_LIFE, 1000)
 {
 }
 
@@ -209,7 +214,7 @@ void ExtraLife::doSomething()
 }
 
 RestoreHealth::RestoreHealth(StudentWorld* sw, int x, int y)
- : Item(sw, x, y, IID_RESTORE_HEALTH, 500)
+ : Goodie(sw, x, y, IID_RESTORE_HEALTH, 500)
 {
 }
 
@@ -223,7 +228,7 @@ void RestoreHealth::doSomething()
 }
 
 RestoreAmmo::RestoreAmmo(StudentWorld* sw, int x, int y)
- : Item(sw, x, y, IID_AMMO, 100)
+ : Goodie(sw, x, y, IID_AMMO, 100)
 {
 }
 
@@ -293,17 +298,22 @@ void Exit::doSomething()
 }
 
 Enemy::Enemy(StudentWorld* sw, int x, int y, int IID, int dir, int points)
- : Actor(IID, sw, x, y, dir), m_points(points)
+ : Actor(IID, sw, x, y, dir), m_points(points), currTick(1), goodieType(-1)
 {
+    ticks = (28 - getWorld()->getLevel()) / 4;
+    if (ticks < 3)
+        ticks = 3;
 }
 
 bool Enemy::damage()
-{
+{   // make sure to also spawn in the goodie in case the ThiefBot dies after
     changeHP(-2);
     if (getHP() > 0)
         getWorld()->playSound(SOUND_ROBOT_IMPACT);
     else
     {
+        if (goodieType != -1)
+            getWorld()->createGoodie(getX(), getY(), goodieType);
         getWorld()->playSound(SOUND_ROBOT_DIE);    // also set robot's state to dead
         getWorld()->increaseScore(m_points); // also give player points here?
     }
@@ -311,21 +321,38 @@ bool Enemy::damage()
 }
 
 RageBot::RageBot(StudentWorld* sw, int x, int y, int dir)
- : Enemy(sw, x, y, IID_RAGEBOT, dir, 100), currTick(1)
+ : Enemy(sw, x, y, IID_RAGEBOT, dir, 100)
 {
     changeHP(10);
-    ticks = (28 - getWorld()->getLevel()) / 4;
-    if (ticks < 3)
-        ticks = 3;
+}
+
+void RageBot::move(int dir)
+{
+    int x = 0, y = 0;
+    getXY(x, y, dir);
+    
+    Actor* adjacentActor1 = getWorld()->atPosition(getX() + x, getY() + y);
+    bool obstacle = false;  // not an obstacle if there is no actor at that position
+    bool marble = false;    // not a marble if there is no actor at that position
+    if (adjacentActor1 != nullptr)
+    {
+        obstacle = adjacentActor1->isObstacle();
+        marble = adjacentActor1->isMarble();
+    }
+    if (!obstacle && !marble)
+        moveTo(getX() + x, getY() + y);   // moveTo() that space
+    else
+        setDirection(getDirection() + 180);
+    // don't move if there is an obstacle
 }
 
 void RageBot::doSomething()
 {
     if (getHP() <= 0) return;
     
-    if (currTick != ticks)
+    if (getCurrTick() != getTicks())
     {
-        currTick++;
+        addCurrTick(1);
         return;
     }
     
@@ -333,54 +360,122 @@ void RageBot::doSomething()
     switch(direction)
     {
         case GraphObject::right:
-            if (!(getWorld()->findObstacle(getX(), getY(), getDirection())))
+            if (!(getWorld()->findObstruction(getX(), getY(), getDirection())))
             {
                 if (getWorld()->getPlayer()->getY() == getY() && getWorld()->getPlayer()->getX() > getX())
                 {
                     getWorld()->createPea(getX() + 1, getY(), getDirection());  // call createPea()
                     getWorld()->playSound(SOUND_ENEMY_FIRE);
-                    currTick = 1;
+                    addCurrTick(-(getTicks() - 1));
                     return;
                 }
             }
             break;
         case GraphObject::left:
-            if (!(getWorld()->findObstacle(getX(), getY(), getDirection())))
+            if (!(getWorld()->findObstruction(getX(), getY(), getDirection())))
             {
                 if (getWorld()->getPlayer()->getY() == getY() && getWorld()->getPlayer()->getX() < getX())
                 {
                     getWorld()->createPea(getX() - 1, getY(), getDirection());  // call createPea()
                     getWorld()->playSound(SOUND_ENEMY_FIRE);
-                    currTick = 1;
+                    addCurrTick(-(getTicks() - 1));
                     return;
                 }
             }
             break;
         case GraphObject::up:
-            if (!(getWorld()->findObstacle(getX(), getY(), getDirection())))
+            if (!(getWorld()->findObstruction(getX(), getY(), getDirection())))
             {
                 if (getWorld()->getPlayer()->getY() > getY() && getWorld()->getPlayer()->getX() == getX())
                 {
                     getWorld()->createPea(getX(), getY() + 1, getDirection());  // call createPea()
                     getWorld()->playSound(SOUND_ENEMY_FIRE);
-                    currTick = 1;
+                    addCurrTick(-(getTicks() - 1));
                     return;
                 }
             }
             break;
         case GraphObject::down:
-            if (!(getWorld()->findObstacle(getX(), getY(), getDirection())))
+            if (!(getWorld()->findObstruction(getX(), getY(), getDirection())))
             {
                 if (getWorld()->getPlayer()->getY() < getY() && getWorld()->getPlayer()->getX() == getX())
                 {
                     getWorld()->createPea(getX(), getY() - 1, getDirection());  // call createPea()
                     getWorld()->playSound(SOUND_ENEMY_FIRE);
-                    currTick = 1;
+                    addCurrTick(-(getTicks() - 1));
                     return;
                 }
             }
             break;
     }
     
-    currTick = 1;
+    move(getDirection());
+    
+    addCurrTick(-(getTicks() - 1));
+}
+
+ThiefBot::ThiefBot(StudentWorld* sw, int x, int y)
+ : Enemy(sw, x, y, IID_THIEFBOT, GraphObject::right, 10), currDistance(0)
+{
+    distanceBeforeTurning = randInt(1, 6);
+}
+
+void ThiefBot::move(int& currDist, int dir)
+{
+    int x = 0, y = 0;
+    getXY(x, y, dir);
+    
+    // FIX
+    if (currDist < distanceBeforeTurning)
+    {
+        Actor* adjacentActor1 = getWorld()->atPosition(getX() + x, getY() + y);
+        bool obstacle = false;  // not an obstacle if there is no actor at that position
+        bool marble = false;    // not a marble if there is no actor at that position
+        if (adjacentActor1 != nullptr)
+        {
+            obstacle = adjacentActor1->isObstacle();
+            marble = adjacentActor1->isMarble();
+        }
+        if (!obstacle && !marble)
+            moveTo(getX() + x, getY() + y);   // moveTo() that space
+        else    // it has encountered an obstruction
+            setDirection(getDirection() + 180);
+    }
+}
+
+void ThiefBot::doSomething()    // should test this behavior extensively
+{                               // once i also get the factory to work
+    if (getHP() <= 0)
+        return;
+    
+    if (getCurrTick() != getTicks())
+    {
+        addCurrTick(1);
+        return;
+    }
+    
+    if (getGoodieType() == -1)   // the ThiefBot has never picked up a goodie before
+    {
+        Actor* sameSquare = getWorld()->atPosition(getX(), getY());
+        if (!(sameSquare->canSteal()))
+            sameSquare = nullptr;
+        if (sameSquare == nullptr)
+        {
+            sameSquare = getWorld()->atPositionReverse(getX(), getY());
+            if (!(sameSquare->canSteal()))
+                sameSquare = nullptr;
+        }
+        
+        if (sameSquare != nullptr)
+        {
+            // implement RNG here after verifying that goodie can be picked up
+            setGoodieType(sameSquare->typeOfGoodie());    // track the type of goodie collected
+            sameSquare->changeHP(-1);   // delete the goodie collected at the end of the tick
+            getWorld()->playSound(SOUND_ROBOT_MUNCH);
+            return;
+        }
+    }
+    
+    // IMPLEMENT MOVEMENT HERE
+    
 }
