@@ -10,7 +10,7 @@ class Actor : public GraphObject
     virtual bool isObstacle() const;
     virtual bool isMarble() const;
     virtual bool isPit() const;
-    virtual void doSomething() {} // WEIZHEN WANG WOULD DISAPPROVE
+    virtual void doSomething() {}
     virtual void push(int x, int y) {}
     virtual void makeVisible() {}
     virtual bool damage();
@@ -34,6 +34,7 @@ class Player : public Actor
     int getPeas() const;
     void addPeas();
     void doSomething();
+    bool isObstacle() const;
     bool damage();
     
   private:
@@ -71,8 +72,10 @@ class Item : public Actor
 {
   public:
     Item(StudentWorld* sw, int x, int y, int IID, int increaseScoreBy);
+    
   protected:
     bool action();
+    
   private:
     int plusScore;
 };
@@ -118,6 +121,30 @@ class Exit : public Actor
     Exit(StudentWorld* sw, int x, int y);
     void doSomething();
     void makeVisible();
+};
+
+class Enemy : public Actor
+{
+  public:
+    bool isObstacle() const;
+    bool damage();
+    
+  protected:
+    Enemy(StudentWorld* sw, int x, int y, int IID, int dir, int points);
+    
+  private:
+    int m_points;
+};
+
+class RageBot : public Enemy
+{
+  public:
+    RageBot(StudentWorld* sw, int x, int y, int dir);
+    void doSomething();
+    
+  private:
+    int ticks;
+    int currTick;
 };
 
 // maybe declare these inline function inside of their classes
@@ -168,6 +195,16 @@ inline void Player::addPeas()
     numPeas += 20;
 }
 
+inline bool Player::isObstacle() const
+{
+    return true;
+}
+
+inline bool Wall::damage()
+{
+    return true;
+}
+
 inline bool Wall::isObstacle() const
 {
     return true;
@@ -193,4 +230,8 @@ inline void Exit::makeVisible()
     setVisible(true);
 }
 
+inline bool Enemy::isObstacle() const
+{
+    return true;
+}
 #endif // ACTOR_H_

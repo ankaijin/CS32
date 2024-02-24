@@ -24,6 +24,7 @@ class StudentWorld : public GameWorld
     int getNumCrystals();
     void createPea(int x, int y, int dir);
     void completeLevel();
+    bool findObstacle(int x, int y, int dir);
     virtual int init();
     virtual int move();
     virtual void cleanUp();

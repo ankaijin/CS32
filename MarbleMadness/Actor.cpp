@@ -26,11 +26,6 @@ void Actor::getXY(int& x, int& y, int dir)
     }
 }
 
-bool Wall::damage()
-{
-    return true;
-}
-
 Player::Player(StudentWorld* sw, int x, int y)
  : Actor(IID_PLAYER, sw, x, y, GraphObject::right)
 {
@@ -295,4 +290,97 @@ void Exit::doSomething()
             getWorld()->completeLevel();    // tell StudentWorld that player must also receive bonus points
         }
     }
+}
+
+Enemy::Enemy(StudentWorld* sw, int x, int y, int IID, int dir, int points)
+ : Actor(IID, sw, x, y, dir), m_points(points)
+{
+}
+
+bool Enemy::damage()
+{
+    changeHP(-2);
+    if (getHP() > 0)
+        getWorld()->playSound(SOUND_ROBOT_IMPACT);
+    else
+    {
+        getWorld()->playSound(SOUND_ROBOT_DIE);    // also set robot's state to dead
+        getWorld()->increaseScore(m_points); // also give player points here?
+    }
+    return true;
+}
+
+RageBot::RageBot(StudentWorld* sw, int x, int y, int dir)
+ : Enemy(sw, x, y, IID_RAGEBOT, dir, 100), currTick(1)
+{
+    changeHP(10);
+    ticks = (28 - getWorld()->getLevel()) / 4;
+    if (ticks < 3)
+        ticks = 3;
+}
+
+void RageBot::doSomething()
+{
+    if (getHP() <= 0) return;
+    
+    if (currTick != ticks)
+    {
+        currTick++;
+        return;
+    }
+    
+    int direction = getDirection();
+    switch(direction)
+    {
+        case GraphObject::right:
+            if (!(getWorld()->findObstacle(getX(), getY(), getDirection())))
+            {
+                if (getWorld()->getPlayer()->getY() == getY() && getWorld()->getPlayer()->getX() > getX())
+                {
+                    getWorld()->createPea(getX() + 1, getY(), getDirection());  // call createPea()
+                    getWorld()->playSound(SOUND_ENEMY_FIRE);
+                    currTick = 1;
+                    return;
+                }
+            }
+            break;
+        case GraphObject::left:
+            if (!(getWorld()->findObstacle(getX(), getY(), getDirection())))
+            {
+                if (getWorld()->getPlayer()->getY() == getY() && getWorld()->getPlayer()->getX() < getX())
+                {
+                    getWorld()->createPea(getX() - 1, getY(), getDirection());  // call createPea()
+                    getWorld()->playSound(SOUND_ENEMY_FIRE);
+                    currTick = 1;
+                    return;
+                }
+            }
+            break;
+        case GraphObject::up:
+            if (!(getWorld()->findObstacle(getX(), getY(), getDirection())))
+            {
+                if (getWorld()->getPlayer()->getY() > getY() && getWorld()->getPlayer()->getX() == getX())
+                {
+                    getWorld()->createPea(getX(), getY() + 1, getDirection());  // call createPea()
+                    getWorld()->playSound(SOUND_ENEMY_FIRE);
+                    currTick = 1;
+                    return;
+                }
+            }
+            break;
+        case GraphObject::down:
+            if (!(getWorld()->findObstacle(getX(), getY(), getDirection())))
+            {
+                if (getWorld()->getPlayer()->getY() < getY() && getWorld()->getPlayer()->getX() == getX())
+                {
+                    getWorld()->createPea(getX(), getY() - 1, getDirection());  // call createPea()
+                    getWorld()->playSound(SOUND_ENEMY_FIRE);
+                    currTick = 1;
+                    return;
+                }
+            }
+            break;
+    }
+    
+    currTick = 1;
 }

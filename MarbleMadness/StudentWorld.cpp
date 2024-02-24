@@ -79,9 +79,57 @@ void StudentWorld::createPea(int x, int y, int dir)    // CHECK
     m_actors.push_back(new Pea(this, x, y, dir));
 }
 
+bool StudentWorld::findObstacle(int x, int y, int dir)
+{
+    int playerX = m_player->getX();
+    int playerY = m_player->getY();
+    list<Actor*>::iterator it = m_actors.begin();
+    switch(dir)
+    {
+        case GraphObject::right:    // fix logic
+            while (it != m_actors.end())
+            {
+                if ((*it)->getY() == y && (*it)->getX() > x && (*it)->getX() < playerX && (*it)->isObstacle())
+                    return true;
+                else
+                    it++;
+            }
+            break;
+        case GraphObject::left:
+            while (it != m_actors.end())
+            {
+                if ((*it)->getY() == y && (*it)->getX() < x && (*it)->getX() > playerX && (*it)->isObstacle())
+                    return true;
+                else
+                    it++;
+            }
+            break;
+        case GraphObject::up:
+            while (it != m_actors.end())
+            {
+                if ((*it)->getY() > y && (*it)->getY() < playerY && (*it)->getX() == x && (*it)->isObstacle())
+                    return true;
+                else
+                    it++;
+            }
+            break;
+        case GraphObject::down:
+            while (it != m_actors.end())
+            {
+                if ((*it)->getY() < y && (*it)->getY() > playerY && (*it)->getX() == x && (*it)->isObstacle())
+                    return true;
+                else
+                    it++;
+            }
+            break;
+    }
+    
+    return false;
+}
+
 int StudentWorld::init()    // initializes level
 {
-    ostringstream oss;  // FIX LOAD LEVEL code
+    ostringstream oss;
     oss.fill('0');
     oss << setw(2) << getLevel();
     Level lev(assetPath());
@@ -110,8 +158,10 @@ int StudentWorld::init()    // initializes level
                     exitY = row;
                     break;
                 case Level::horiz_ragebot:
+                    m_actors.push_back(new RageBot(this, column, row, GraphObject::right));
                     break;
                 case Level::vert_ragebot:
+                    m_actors.push_back(new RageBot(this, column, row, GraphObject::down));
                     break;
                 case Level::thiefbot_factory:
                     break;
@@ -169,13 +219,7 @@ int StudentWorld::move()    // facilitates gameplay
     }
     
     m_player->doSomething();
-/*
-if (thePlayerCompletedTheCurrentLevel())
-{
-increaseScoreAppropriately();
-return GWSTATUS_FINISHED_LEVEL;
-}
- */
+
 // Remove newly-dead actors after each tick
  
     list<Actor*>::iterator it = m_actors.begin();   // delete dead game objects
@@ -205,7 +249,13 @@ return GWSTATUS_FINISHED_LEVEL;
 // return the proper result
     if (m_player->getHP() <= 0)
         return GWSTATUS_PLAYER_DIED;
-
+/*
+ if (thePlayerCompletedTheCurrentLevel())
+ {
+    increaseScoreAppropriately();
+    return GWSTATUS_FINISHED_LEVEL;
+ }
+ */
     if (levelCompleted)
     {
         increaseScore(getBonus());
