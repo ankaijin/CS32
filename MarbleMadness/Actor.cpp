@@ -305,6 +305,22 @@ Enemy::Enemy(StudentWorld* sw, int x, int y, int IID, int dir, int points)
         ticks = 3;
 }
 
+bool Enemy::canRobotMove(int x, int y) const
+{
+    Actor* adjacentActor1 = getWorld()->atPosition(x, y);
+    bool obstacle = false;  // not an obstacle if there is no actor at that position
+    bool marble = false;    // not a marble if there is no actor at that position
+    if (adjacentActor1 != nullptr)
+    {
+        obstacle = adjacentActor1->isObstacle();
+        marble = adjacentActor1->isMarble();
+    }
+    if (!obstacle && !marble)
+        return true;
+    else
+        return false;
+}
+
 bool Enemy::damage()
 {   // make sure to also spawn in the goodie in case the ThiefBot dies after
     changeHP(-2);
@@ -331,15 +347,7 @@ void RageBot::move(int dir)
     int x = 0, y = 0;
     getXY(x, y, dir);
     
-    Actor* adjacentActor1 = getWorld()->atPosition(getX() + x, getY() + y);
-    bool obstacle = false;  // not an obstacle if there is no actor at that position
-    bool marble = false;    // not a marble if there is no actor at that position
-    if (adjacentActor1 != nullptr)
-    {
-        obstacle = adjacentActor1->isObstacle();
-        marble = adjacentActor1->isMarble();
-    }
-    if (!obstacle && !marble)
+    if (canRobotMove(getX() + x, getY() + y))
         moveTo(getX() + x, getY() + y);   // moveTo() that space
     else
         setDirection(getDirection() + 180);
@@ -420,26 +428,37 @@ ThiefBot::ThiefBot(StudentWorld* sw, int x, int y)
     distanceBeforeTurning = randInt(1, 6);
 }
 
-void ThiefBot::move(int& currDist, int dir)
+void ThiefBot::move(int& currDist, int dir) // verify that this does the right thing
 {
     int x = 0, y = 0;
     getXY(x, y, dir);
-    
-    // FIX
-    if (currDist < distanceBeforeTurning)
+
+    if (currDist < distanceBeforeTurning && canRobotMove(getX() + x, getY() + y))
     {
-        Actor* adjacentActor1 = getWorld()->atPosition(getX() + x, getY() + y);
-        bool obstacle = false;  // not an obstacle if there is no actor at that position
-        bool marble = false;    // not a marble if there is no actor at that position
-        if (adjacentActor1 != nullptr)
+        // move forward if it can move
+        moveTo(getX() + x, getY() + y);   // moveTo() that space
+        currDist++;
+    }
+    else    // remember to reset currDist
+    {
+        distanceBeforeTurning = randInt(1, 6);
+        int randomDirection = randInt(0, 3) * 90;
+        for (int i = 0; i < 4; i++)
         {
-            obstacle = adjacentActor1->isObstacle();
-            marble = adjacentActor1->isMarble();
+            // int x = 0, y = 0; I don't think I need this
+            getXY(x, y, randomDirection);
+            
+            if (canRobotMove(getX() + x, getY() + y))
+            {
+                setDirection(randomDirection);
+                moveTo(getX() + x, getY() + y);   // moveTo() that space
+                currDist = 1;   // reset currDist
+                return;
+            }
+            else
+                randomDirection += 90;
         }
-        if (!obstacle && !marble)
-            moveTo(getX() + x, getY() + y);   // moveTo() that space
-        else    // it has encountered an obstruction
-            setDirection(getDirection() + 180);
+        setDirection(randomDirection);  // obstructions in all 4 directions
     }
 }
 

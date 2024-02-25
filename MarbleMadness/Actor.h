@@ -143,6 +143,7 @@ class Enemy : public Actor
   public:
     bool isObstacle() const;
     bool robotFireAt() const;
+    bool canRobotMove(int x, int y) const;
     int getCurrTick() const;
     int getTicks() const;
     void addCurrTick(int howMuch);
