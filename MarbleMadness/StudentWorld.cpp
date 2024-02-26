@@ -24,7 +24,18 @@ StudentWorld::~StudentWorld()
     cleanUp();
 }
 
-Actor* StudentWorld::atPosition(int x, int y)
+Actor* StudentWorld::atPositionReverse(int x, int y, Actor* t)
+{
+    list<Actor*>::reverse_iterator it;
+    for (it = m_actors.rbegin() ; it != m_actors.rend(); it++)
+    {
+        if ((*it)->getX() == x && (*it)->getY() == y && (*it) != t)
+            return (*it);
+    }
+    return nullptr;
+}
+
+Actor* StudentWorld::atPos(int x, int y)
 {
     list<Actor*>::iterator it;
     for (it = m_actors.begin(); it != m_actors.end(); it++)
@@ -35,7 +46,7 @@ Actor* StudentWorld::atPosition(int x, int y)
     return nullptr;
 }
 
-Actor* StudentWorld::atPositionReverse(int x, int y)
+Actor* StudentWorld::atPositionRev(int x, int y)
 {
     list<Actor*>::reverse_iterator it;
     for (it = m_actors.rbegin() ; it != m_actors.rend(); it++)
@@ -143,6 +154,31 @@ bool StudentWorld::findObstruction(int x, int y, int dir)
     return false;
 }
 
+int StudentWorld::countThiefbots(int x, int y)
+{
+    int count = 0;
+    
+    list<Actor*>::iterator it = m_actors.begin();
+    while (it != m_actors.end())
+    {
+        if ((*it)->isThiefBot())
+            if ((*it)->getX() >= (x - 3) && (*it)->getX() <= (x + 3))
+                if ((*it)->getY() >= (y - 3) && (*it)->getY() <= (y + 3))
+                    count++;
+        it++;
+    }
+    
+    return count;
+}
+
+void StudentWorld::createThiefBot(int x, int y, bool mean)
+{
+    if (mean == false)
+        m_actors.push_back(new ThiefBot(this, x, y, IID_THIEFBOT));
+    else
+        m_actors.push_back(new MeanThiefBot(this, x, y));
+}
+
 int StudentWorld::init()    // initializes level
 {
     ostringstream oss;
@@ -180,11 +216,12 @@ int StudentWorld::init()    // initializes level
                     m_actors.push_back(new RageBot(this, column, row, GraphObject::down));
                     break;
                 case Level::thiefbot_factory:
+                    m_actors.push_back(new ThiefBotFactory(this, column, row, false));
                     break;
                 case Level::mean_thiefbot_factory:
                     break;
                 case Level::wall:
-                    m_actors.push_back(new Wall(this, column, row));
+                    m_actors.push_back(new Wall(this, column, row, IID_WALL));
                     break;
                 case Level::marble:
                     m_actors.push_back(new Marble(this, column, row));
@@ -258,7 +295,7 @@ int StudentWorld::move()    // facilitates gameplay
     {
         exitRevealed = true;
         // exposeTheExitInTheMaze(), make the exit Active
-        atPosition(exitX, exitY)->makeVisible();
+        atPos(exitX, exitY)->makeVisible(); // double check that this works
         playSound(SOUND_REVEAL_EXIT);
     }
 

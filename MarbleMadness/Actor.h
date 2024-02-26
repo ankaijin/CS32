@@ -10,6 +10,7 @@ class Actor : public GraphObject
     virtual bool isObstacle() const;
     virtual bool isMarble() const;
     virtual bool isPit() const;
+    virtual bool isThiefBot() const;
     virtual bool robotFireAt() const;
     virtual bool canSteal() const;
     virtual int typeOfGoodie() const;   // extra life: 1, restore health: 2, ammo: 3, default: 0
@@ -48,7 +49,7 @@ class Player : public Actor
 class Wall : public Actor
 {
   public:
-    Wall(StudentWorld* sw, int x, int y);
+    Wall(StudentWorld* sw, int x, int y, int IID);
     bool isObstacle() const;
     bool robotFireAt() const;
     bool damage();
@@ -149,6 +150,7 @@ class Enemy : public Actor
     void addCurrTick(int howMuch);
     int getGoodieType() const;
     void setGoodieType(int t);
+    bool shoot(int direction);
     bool damage();
     
   protected:
@@ -174,12 +176,33 @@ class RageBot : public Enemy
 class ThiefBot : public Enemy
 {
   public:
-    ThiefBot(StudentWorld* sw, int x, int y);
-    void doSomething();
-  private:
+    ThiefBot(StudentWorld* sw, int x, int y, int IID);
+    bool isThiefBot() const;
+    virtual void doSomething();
+    
+  protected:
+    bool stealGoodie();
     void move(int& currDist, int dir);
+    
+  private:
     int currDistance;
     int distanceBeforeTurning;
+};
+
+class MeanThiefBot : public ThiefBot
+{
+  public:
+    MeanThiefBot(StudentWorld* sw, int x, int y);
+    void doSomething();
+};
+
+class ThiefBotFactory : public Wall
+{
+  public:
+    ThiefBotFactory(StudentWorld* sw, int x, int y, bool mean);
+    void doSomething();
+  private:
+    bool meanThiefBots;
 };
 
 // maybe declare these inline function inside of their classes
@@ -210,6 +233,11 @@ inline bool Actor::isMarble() const
 }
 
 inline bool Actor::isPit() const
+{
+    return false;
+}
+
+inline bool Actor::isThiefBot() const
 {
     return false;
 }
@@ -343,5 +371,10 @@ inline int Enemy::getGoodieType() const
 inline void Enemy::setGoodieType(int t)
 {
     goodieType = t;
+}
+
+inline bool ThiefBot::isThiefBot() const
+{
+    return true;
 }
 #endif // ACTOR_H_
