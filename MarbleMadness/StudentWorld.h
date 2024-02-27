@@ -41,7 +41,7 @@ class StudentWorld : public GameWorld
     int numCrystals;
     bool levelCompleted;
     bool exitRevealed;
-    int exitX;  // check if I still need these
+    int exitX;
     int exitY;
 };
 

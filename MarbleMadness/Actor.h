@@ -129,6 +129,9 @@ class Pea : public Actor
   public:
     Pea(StudentWorld* sw, int x, int y, int dir);
     void doSomething();
+    
+  private:
+    bool justCreated;
 };
 
 class Exit : public Actor
@@ -178,11 +181,12 @@ class ThiefBot : public Enemy
   public:
     ThiefBot(StudentWorld* sw, int x, int y, int IID);
     bool isThiefBot() const;
+    void incCurrDist();
     virtual void doSomething();
     
   protected:
     bool stealGoodie();
-    void move(int& currDist, int dir);
+    void move(int dir);
     
   private:
     int currDistance;
@@ -376,5 +380,10 @@ inline void Enemy::setGoodieType(int t)
 inline bool ThiefBot::isThiefBot() const
 {
     return true;
+}
+
+inline void ThiefBot::incCurrDist()
+{
+    currDistance++;
 }
 #endif // ACTOR_H_

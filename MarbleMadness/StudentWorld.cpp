@@ -219,6 +219,7 @@ int StudentWorld::init()    // initializes level
                     m_actors.push_back(new ThiefBotFactory(this, column, row, false));
                     break;
                 case Level::mean_thiefbot_factory:
+                    m_actors.push_back(new ThiefBotFactory(this, column, row, true));
                     break;
                 case Level::wall:
                     m_actors.push_back(new Wall(this, column, row, IID_WALL));

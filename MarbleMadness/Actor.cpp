@@ -243,29 +243,39 @@ void RestoreAmmo::doSomething()
 }
 
 Pea::Pea(StudentWorld* sw, int x, int y, int dir)
- : Actor(IID_PEA, sw, x, y, dir)
+ : Actor(IID_PEA, sw, x, y, dir), justCreated(true)
 {
     // add stuff?
     changeHP(1);
 }
 
-void Pea::doSomething()
+void Pea::doSomething() // doesn't work when meanthiefbot is on top of a goodie just dropped
 {
+    if (justCreated)
+    {
+        justCreated = false;
+        return;
+    }
+    
     if (getHP() <= 0) return;
     
-    Actor* sameSquare = getWorld()->atPositionReverse(getX(), getY(), this);
+    Actor* sameSquare = getWorld()->atPositionReverse(getX(), getY(), this);    // this should be fixed
     int x = 0, y = 0;
-    // THE FOLLOWING LOGIC SHOULD BE FIXED WHEN MORE FEATURES ARE ADDED
+
     if (sameSquare != nullptr)  // if there is an actor on the same square
     {
         if (sameSquare->damage())   // damage it appropriately
-        {
             changeHP(-1);   // destroy itself
-        }
         else    // if the actor can't be damaged
         {       // move it forward
-            getXY(x, y, getDirection());
-            moveTo(getX() + x, getY() + y);
+            sameSquare = getWorld()->atPos(getX(), getY());
+            if (sameSquare->damage())
+                changeHP(-1);
+            else
+            {
+                getXY(x, y, getDirection());
+                moveTo(getX() + x, getY() + y);
+            }
         }
     }
     else    // no actor on the same square
@@ -445,33 +455,37 @@ bool ThiefBot::stealGoodie()
 {
     if (getGoodieType() == 0)   // 3: the ThiefBot has never picked up a goodie before
     {
-        Actor* sameSquare = getWorld()->atPos(getX(), getY());
-        if (!(sameSquare->canSteal()))
+        Actor* sameSquare = getWorld()->atPositionReverse(getX(), getY(), this);
+        if (sameSquare != nullptr && !(sameSquare->canSteal()))
             sameSquare = nullptr;
         // insert code to check for atPosReverse if needed
         if (sameSquare != nullptr)
         {
             // implement RNG here after verifying that goodie can be picked up
-            setGoodieType(sameSquare->typeOfGoodie());    // track the type of goodie collected
-            sameSquare->changeHP(-1);   // delete the goodie collected at the end of the tick
-            getWorld()->playSound(SOUND_ROBOT_MUNCH);
-            addCurrTick(-(getTicks() - 1)); // reset currTick
-            return true;
+            int munch = randInt(1, 10);
+            if (munch == 3)
+            {
+                setGoodieType(sameSquare->typeOfGoodie());    // track the type of goodie collected
+                sameSquare->changeHP(-1);   // delete the goodie collected at the end of the tick
+                getWorld()->playSound(SOUND_ROBOT_MUNCH);
+                addCurrTick(-(getTicks() - 1)); // reset currTick
+                return true;
+            }
         }
     }
     return false;
 }
 
-void ThiefBot::move(int& currDist, int dir) // verify that this does the right thing
+void ThiefBot::move(int dir) // verify that this does the right thing
 {
     int x = 0, y = 0;
     getXY(x, y, dir);
 
-    if (currDist < distanceBeforeTurning && canRobotMove(getX() + x, getY() + y))
+    if (currDistance < distanceBeforeTurning && canRobotMove(getX() + x, getY() + y))
     {
         // move forward if it can move
         moveTo(getX() + x, getY() + y);   // moveTo() that space
-        currDist++;
+        incCurrDist();
     }
     else    // remember to reset currDist
     {
@@ -486,7 +500,7 @@ void ThiefBot::move(int& currDist, int dir) // verify that this does the right t
             {
                 setDirection(randomDirection);
                 moveTo(getX() + x, getY() + y);   // moveTo() that space
-                currDist = 1;   // reset currDist
+                currDistance = 1;   // reset currDist
                 return;
             }
             else
@@ -508,7 +522,7 @@ void ThiefBot::doSomething()    // should test this behavior extensively
     
     if (!stealGoodie())
     {
-        move(currDistance, getDirection()); // 4 & 5
+        move(getDirection()); // 4 & 5
         addCurrTick(-(getTicks() - 1)); // reset currTick
     }
 }
@@ -535,7 +549,7 @@ void MeanThiefBot::doSomething()
     if (stealGoodie())
         return;
     
-    
+    move(getDirection());
     addCurrTick(-(getTicks() - 1)); // reset currTick
 }
 
