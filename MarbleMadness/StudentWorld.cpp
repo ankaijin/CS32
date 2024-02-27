@@ -334,6 +334,8 @@ void StudentWorld::cleanUp()    // deletes everything
         delete m_player;
     m_player = nullptr;
     
+    // update game stats (MAKE SURE THIS DOES WHAT IT'S SUPPOSED TO)
+    decLives();
     exitRevealed = false;
     levelCompleted = false;
     m_bonus = 1000;

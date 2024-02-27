@@ -86,19 +86,18 @@ void Player::doSomething()
                 // fire a pea
                 // create new pea one block in front of the direction the player is facing
                 // decrease numPeas by 1
-                int x = 0, y = 0;
-                getXY(x, y, getDirection());
-                getWorld()->createPea(getX() + x, getY() + y, getDirection());  // call createPea()
-                numPeas--;
-                getWorld()->playSound(SOUND_PLAYER_FIRE);
+                if (numPeas > 0)
+                {
+                    int x = 0, y = 0;
+                    getXY(x, y, getDirection());
+                    getWorld()->createPea(getX() + x, getY() + y, getDirection());  // call createPea()
+                    numPeas--;
+                    getWorld()->playSound(SOUND_PLAYER_FIRE);
+                }
                 break;
             }
             case KEY_PRESS_ESCAPE:  // abort
                 changeHP(-20);
-                break;
-            case KEY_PRESS_TAB:
-                break;
-            case KEY_PRESS_ENTER:
                 break;
         }
     }
@@ -262,7 +261,12 @@ void Pea::doSomething() // doesn't work when meanthiefbot is on top of a goodie 
     Actor* sameSquare = getWorld()->atPositionReverse(getX(), getY(), this);    // this should be fixed
     int x = 0, y = 0;
 
-    if (sameSquare != nullptr)  // if there is an actor on the same square
+    if (getWorld()->getPlayer()->getX() == getX() && getWorld()->getPlayer()->getY() == getY())
+    {   // if player is on the same square
+        changeHP(-1);
+        getWorld()->getPlayer()->damage();
+    }
+    else if (sameSquare != nullptr)  // if there is an actor on the same square
     {
         if (sameSquare->damage())   // damage it appropriately
             changeHP(-1);   // destroy itself
@@ -286,9 +290,17 @@ void Pea::doSomething() // doesn't work when meanthiefbot is on top of a goodie 
     
     if (getHP() <= 0) return;   // if pea has died, leave this function
     
-    sameSquare = getWorld()->atPositionReverse(getX(), getY(), this);
-    if (sameSquare != nullptr && sameSquare->damage())
+    if (getWorld()->getPlayer()->getX() == getX() && getWorld()->getPlayer()->getY() == getY())
+    {   // if player is on the same square
         changeHP(-1);
+        getWorld()->getPlayer()->damage();
+    }
+    else
+    {
+        sameSquare = getWorld()->atPositionReverse(getX(), getY(), this);
+        if (sameSquare != nullptr && sameSquare->damage())
+            changeHP(-1);
+    }
 }
 
 Exit::Exit(StudentWorld* sw, int x, int y)
