@@ -333,7 +333,7 @@ Enemy::Enemy(StudentWorld* sw, int x, int y, int IID, int dir, int points)
 
 bool Enemy::canRobotMove(int x, int y) const
 {
-    Actor* adjacentActor1 = getWorld()->atPos(x, y);
+    Actor* adjacentActor1 = getWorld()->atPositionReverse(x, y, this);
     bool obstacle = false;  // not an obstacle if there is no actor at that position
     bool marble = false;    // not a marble if there is no actor at that position
     if (adjacentActor1 != nullptr)

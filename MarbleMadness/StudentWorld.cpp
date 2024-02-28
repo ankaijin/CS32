@@ -24,10 +24,10 @@ StudentWorld::~StudentWorld()
     cleanUp();
 }
 
-Actor* StudentWorld::atPositionReverse(int x, int y, Actor* t)
+Actor* StudentWorld::atPositionReverse(int x, int y, const Actor* t)
 {
     list<Actor*>::reverse_iterator it;
-    for (it = m_actors.rbegin() ; it != m_actors.rend(); it++)
+    for (it = m_actors.rbegin(); it != m_actors.rend(); it++)
     {
         if ((*it)->getX() == x && (*it)->getY() == y && (*it) != t)
             return (*it);

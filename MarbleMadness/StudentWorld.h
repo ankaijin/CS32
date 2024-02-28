@@ -15,7 +15,7 @@ class StudentWorld : public GameWorld
   public:
     StudentWorld(std::string assetPath);
     ~StudentWorld();
-    Actor* atPositionReverse(int x, int y, Actor* t);
+    Actor* atPositionReverse(int x, int y, const Actor* t);
     Actor* atPos(int x, int y);
     Actor* atPositionRev(int x, int y);
     Player* getPlayer();
