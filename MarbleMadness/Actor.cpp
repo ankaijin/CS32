@@ -488,7 +488,7 @@ bool ThiefBot::stealGoodie()
     return false;
 }
 
-void ThiefBot::move(int dir) // verify that this does the right thing
+void ThiefBot::move(int dir) // verified that this does the right thing
 {
     int x = 0, y = 0;
     getXY(x, y, dir);
@@ -505,12 +505,13 @@ void ThiefBot::move(int dir) // verify that this does the right thing
         int randomDirection = randInt(0, 3) * 90;
         for (int i = 0; i < 4; i++)
         {
-            // int x = 0, y = 0; I don't think I need this
-            getXY(x, y, randomDirection);
+            x = 0;
+            y = 0; // I don't think I need this
+            setDirection(randomDirection);
+            getXY(x, y, getDirection());
             
             if (canRobotMove(getX() + x, getY() + y))
             {
-                setDirection(randomDirection);
                 moveTo(getX() + x, getY() + y);   // moveTo() that space
                 currDistance = 1;   // reset currDist
                 return;
@@ -518,6 +519,7 @@ void ThiefBot::move(int dir) // verify that this does the right thing
             else
                 randomDirection += 90;
         }
+        currDistance = 0;
         setDirection(randomDirection);  // obstructions in all 4 directions
     }
 }

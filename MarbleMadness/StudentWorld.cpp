@@ -183,7 +183,7 @@ int StudentWorld::init()    // initializes level
 {
     ostringstream oss;
     oss.fill('0');
-    oss << setw(2) << getLevel();
+    oss << setw(2) << getLevel(); // getLevel()
     Level lev(assetPath());
     string s = oss.str();
     string curLevel = "Level" + s + ".txt";
@@ -268,7 +268,10 @@ int StudentWorld::move()    // facilitates gameplay
         {
             currActor->doSomething();   //  ask each actor to do something (e.g. move)
             if (m_player->getHP() <= 0) // if (thePlayerDiedDuringThisTick()) return GWSTATUS_PLAYER_DIED;
+            {
+                decLives();
                 return GWSTATUS_PLAYER_DIED;
+            }
         }
     }
     
@@ -302,7 +305,10 @@ int StudentWorld::move()    // facilitates gameplay
 
 // return the proper result
     if (m_player->getHP() <= 0)
+    {
+        decLives();
         return GWSTATUS_PLAYER_DIED;
+    }
 /*
  if (thePlayerCompletedTheCurrentLevel())
  {
@@ -335,7 +341,7 @@ void StudentWorld::cleanUp()    // deletes everything
     m_player = nullptr;
     
     // update game stats (MAKE SURE THIS DOES WHAT IT'S SUPPOSED TO)
-    decLives();
+    numCrystals = 0;
     exitRevealed = false;
     levelCompleted = false;
     m_bonus = 1000;
