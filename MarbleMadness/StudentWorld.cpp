@@ -35,6 +35,17 @@ Actor* StudentWorld::atPositionReverse(int x, int y, const Actor* t)
     return nullptr;
 }
 
+Actor* StudentWorld::atPosition(int x, int y, const Actor* t)
+{
+    list<Actor*>::iterator it;
+    for (it = m_actors.begin(); it != m_actors.end(); it++)
+    {
+        if ((*it)->getX() == x && (*it)->getY() == y && (*it) != t)
+            return (*it);
+    }
+    return nullptr;
+}
+
 Actor* StudentWorld::atPos(int x, int y)
 {
     list<Actor*>::iterator it;
@@ -106,6 +117,22 @@ void StudentWorld::createGoodie(int x, int y, int type)
     }
 }
 
+bool StudentWorld::noObstacles(int x, int y, Actor* &obstacle)   // return true if there is obstacle, false otherwise
+{
+    list<Actor*>::iterator it = m_actors.begin();
+    while (it != m_actors.end())
+    {
+        if ((*it)->getY() == y && (*it)->getX() == x && (*it)->isObstacle())
+        {
+            obstacle = (*it);
+            return false;
+        }
+        it++;
+    }
+    obstacle = nullptr;
+    return true;
+}
+
 bool StudentWorld::findObstruction(int x, int y, int dir)
 {
     int playerX = m_player->getX();
@@ -150,7 +177,6 @@ bool StudentWorld::findObstruction(int x, int y, int dir)
             }
             break;
     }
-    
     return false;
 }
 
@@ -167,7 +193,6 @@ int StudentWorld::countThiefbots(int x, int y)
                     count++;
         it++;
     }
-    
     return count;
 }
 
@@ -299,7 +324,7 @@ int StudentWorld::move()    // facilitates gameplay
     {
         exitRevealed = true;
         // exposeTheExitInTheMaze(), make the exit Active
-        atPos(exitX, exitY)->makeVisible(); // double check that this works
+        atPos(exitX, exitY)->makeVisible();
         playSound(SOUND_REVEAL_EXIT);
     }
 

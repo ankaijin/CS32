@@ -43,19 +43,19 @@ void Player::move(int dir)
     getXY(x, y, dir);
     
     setDirection(dir);    // make avatar face in the proper direction
-    Actor* adjacentActor1 = getWorld()->atPositionReverse(getX() + x, getY() + y, this);
-    bool obstacle = false;  // not an obstacle if there is no actor at that position
     bool marble = false;    // not a marble if there is no actor at that position
-    if (adjacentActor1 != nullptr)
+    Actor* adjacentActor1 = nullptr;
+    if (getWorld()->noObstacles(getX() + x, getY() + y, adjacentActor1))
     {
-        obstacle = adjacentActor1->isObstacle();
-        marble = adjacentActor1->isMarble();
+        adjacentActor1 = getWorld()->atPos(getX() + x, getY() + y);
+        if (adjacentActor1 != nullptr)
+            marble = adjacentActor1->isMarble();
+        
+        if (marble)
+            adjacentActor1->push(x, y);
+        else
+            moveTo(getX() + x, getY() + y);   // moveTo() that space
     }
-    
-    if (marble)
-        adjacentActor1->push(x, y);
-    else if (!obstacle)
-        moveTo(getX() + x, getY() + y);   // moveTo() that space
     // don't move if there is an obstacle
 }
 
@@ -128,7 +128,7 @@ Marble::Marble(StudentWorld* sw, int x, int y)
 void Marble::push(int x, int y)
 {
     Actor* adjacentActor2 = getWorld()->atPositionReverse(getX() + x, getY() + y, this);
-    if (adjacentActor2 == nullptr || adjacentActor2->isPit())
+    if (adjacentActor2 == nullptr || adjacentActor2->isPit())   // empty spot or pit
     {
         moveTo(getX() + x, getY() + y);
         getWorld()->getPlayer()->moveTo(getX() - x, getY() - y);
@@ -150,7 +150,7 @@ Pit::Pit(StudentWorld* sw, int x, int y)
 void Pit::doSomething()
 {
     if (getHP() <= 0) return;
-    
+    // the following assumes that pea, marble, and pit will never be on the same spot
     Actor* marble = getWorld()->atPos(getX(), getY());
     if (!(marble->isMarble()))
         marble = nullptr;
@@ -248,17 +248,17 @@ Pea::Pea(StudentWorld* sw, int x, int y, int dir)
     changeHP(1);
 }
 
-void Pea::doSomething() // doesn't work when meanthiefbot is on top of a goodie just dropped
+void Pea::doSomething() // Verified: pea hits robot when it is on top of newly created goodie
 {
     if (justCreated)
-    {
+    {   // for animation purposes
         justCreated = false;
         return;
     }
     
-    if (getHP() <= 0) return;
+    if (getHP() <= 0) return;   // check if it's currently alive
     
-    Actor* sameSquare = getWorld()->atPositionReverse(getX(), getY(), this);    // this should be fixed
+    Actor* sameSquare = getWorld()->atPositionReverse(getX(), getY(), this);
     int x = 0, y = 0;
 
     if (getWorld()->getPlayer()->getX() == getX() && getWorld()->getPlayer()->getY() == getY())
@@ -270,13 +270,13 @@ void Pea::doSomething() // doesn't work when meanthiefbot is on top of a goodie 
     {
         if (sameSquare->damage())   // damage it appropriately
             changeHP(-1);   // destroy itself
-        else    // if the actor can't be damaged
-        {       // move it forward
+        else
+        {   // check for two objects on same square
             sameSquare = getWorld()->atPos(getX(), getY());
             if (sameSquare->damage())
                 changeHP(-1);
             else
-            {
+            {   // no damageable actor on the same square, move it forward
                 getXY(x, y, getDirection());
                 moveTo(getX() + x, getY() + y);
             }
@@ -298,8 +298,17 @@ void Pea::doSomething() // doesn't work when meanthiefbot is on top of a goodie 
     else
     {
         sameSquare = getWorld()->atPositionReverse(getX(), getY(), this);
-        if (sameSquare != nullptr && sameSquare->damage())
-            changeHP(-1);
+        if (sameSquare != nullptr)
+        {
+            if (sameSquare->damage())
+                changeHP(-1);
+            else
+            {
+                sameSquare = getWorld()->atPos(getX(), getY());
+                if (sameSquare->damage())
+                    changeHP(-1);
+            }
+        }
     }
 }
 
@@ -333,17 +342,15 @@ Enemy::Enemy(StudentWorld* sw, int x, int y, int IID, int dir, int points)
 
 bool Enemy::canRobotMove(int x, int y) const
 {
-    Actor* adjacentActor1 = getWorld()->atPositionReverse(x, y, this);
-    bool obstacle = false;  // not an obstacle if there is no actor at that position
-    bool marble = false;    // not a marble if there is no actor at that position
-    if (adjacentActor1 != nullptr)
+    bool marble = false;
+    Actor* adjacentActor1 = nullptr;
+    if (getWorld()->noObstacles(x, y, adjacentActor1))
     {
-        obstacle = adjacentActor1->isObstacle();
-        marble = adjacentActor1->isMarble();
-    }
-    if (!obstacle && !marble)
-    {
-        if (getWorld()->getPlayer()->getX() != x || getWorld()->getPlayer()->getY() != y)
+        adjacentActor1 = getWorld()->atPosition(x, y, this);
+        if (adjacentActor1 != nullptr)
+            marble = adjacentActor1->isMarble();
+        
+        if (!marble && (getWorld()->getPlayer()->getX() != x || getWorld()->getPlayer()->getY() != y))
             return true;
     }
     return false;

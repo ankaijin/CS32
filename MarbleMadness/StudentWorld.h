@@ -16,6 +16,7 @@ class StudentWorld : public GameWorld
     StudentWorld(std::string assetPath);
     ~StudentWorld();
     Actor* atPositionReverse(int x, int y, const Actor* t);
+    Actor* atPosition(int x, int y, const Actor* t);
     Actor* atPos(int x, int y);
     Actor* atPositionRev(int x, int y);
     Player* getPlayer();
@@ -26,6 +27,7 @@ class StudentWorld : public GameWorld
     void createPea(int x, int y, int dir);
     void createGoodie(int x, int y, int type);
     void completeLevel();
+    bool noObstacles(int x, int y, Actor* &obstacle);
     bool findObstruction(int x, int y, int dir);
     int countThiefbots(int x, int y);
     void createThiefBot(int x, int y, bool mean);
