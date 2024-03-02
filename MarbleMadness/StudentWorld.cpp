@@ -117,19 +117,15 @@ void StudentWorld::createGoodie(int x, int y, int type)
     }
 }
 
-bool StudentWorld::noObstacles(int x, int y, Actor* &obstacle)   // return true if there is obstacle, false otherwise
+bool StudentWorld::noObstacles(int x, int y)   // return true if there is obstacle, false otherwise
 {
     list<Actor*>::iterator it = m_actors.begin();
     while (it != m_actors.end())
     {
         if ((*it)->getY() == y && (*it)->getX() == x && (*it)->isObstacle())
-        {
-            obstacle = (*it);
             return false;
-        }
         it++;
     }
-    obstacle = nullptr;
     return true;
 }
 

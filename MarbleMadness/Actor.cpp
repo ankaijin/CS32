@@ -45,7 +45,7 @@ void Player::move(int dir)
     setDirection(dir);    // make avatar face in the proper direction
     bool marble = false;    // not a marble if there is no actor at that position
     Actor* adjacentActor1 = nullptr;
-    if (getWorld()->noObstacles(getX() + x, getY() + y, adjacentActor1))
+    if (getWorld()->noObstacles(getX() + x, getY() + y))
     {
         adjacentActor1 = getWorld()->atPos(getX() + x, getY() + y);
         if (adjacentActor1 != nullptr)
@@ -340,11 +340,11 @@ Enemy::Enemy(StudentWorld* sw, int x, int y, int IID, int dir, int points)
         ticks = 3;
 }
 
-bool Enemy::canRobotMove(int x, int y) const
+bool Enemy::canRobotMove(int x, int y) const    // should be good
 {
     bool marble = false;
     Actor* adjacentActor1 = nullptr;
-    if (getWorld()->noObstacles(x, y, adjacentActor1))
+    if (getWorld()->noObstacles(x, y))
     {
         adjacentActor1 = getWorld()->atPosition(x, y, this);
         if (adjacentActor1 != nullptr)
@@ -474,8 +474,8 @@ bool ThiefBot::stealGoodie()
 {
     if (getGoodieType() == 0)   // 3: the ThiefBot has never picked up a goodie before
     {
-        Actor* sameSquare = getWorld()->atPositionReverse(getX(), getY(), this);
-        if (sameSquare != nullptr && !(sameSquare->canSteal()))
+        Actor* sameSquare = getWorld()->atPosition(getX(), getY(), this);
+        if (sameSquare != nullptr && !(sameSquare->canSteal())) // non-stealable item
             sameSquare = nullptr;
         // insert code to check for atPosReverse if needed
         if (sameSquare != nullptr)

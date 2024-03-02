@@ -27,7 +27,7 @@ class StudentWorld : public GameWorld
     void createPea(int x, int y, int dir);
     void createGoodie(int x, int y, int type);
     void completeLevel();
-    bool noObstacles(int x, int y, Actor* &obstacle);
+    bool noObstacles(int x, int y);
     bool findObstruction(int x, int y, int dir);
     int countThiefbots(int x, int y);
     void createThiefBot(int x, int y, bool mean);
