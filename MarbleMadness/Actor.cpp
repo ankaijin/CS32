@@ -333,11 +333,17 @@ void Exit::doSomething()
 }
 
 Enemy::Enemy(StudentWorld* sw, int x, int y, int IID, int dir, int points)
- : Actor(IID, sw, x, y, dir), m_points(points), currTick(1), goodieType(-1)
+ : Actor(IID, sw, x, y, dir), m_points(points), currTick(1), m_goodie(nullptr)
 {
     ticks = (28 - getWorld()->getLevel()) / 4;
     if (ticks < 3)
         ticks = 3;
+}
+
+Enemy::~Enemy()
+{
+    if (m_goodie != nullptr)
+        delete m_goodie;
 }
 
 bool Enemy::canRobotMove(int x, int y) const    // should be good
@@ -419,8 +425,11 @@ bool Enemy::damage()
         getWorld()->playSound(SOUND_ROBOT_IMPACT);
     else
     {
-        if (goodieType != -1)
-            getWorld()->createGoodie(getX(), getY(), goodieType);
+        if (m_goodie != nullptr)
+        {
+            getWorld()->createGoodie(getX(), getY(), m_goodie);   // drop the goodie
+            m_goodie = nullptr; // enemy no longer has a goodie
+        }
         getWorld()->playSound(SOUND_ROBOT_DIE);    // also set robot's state to dead
         getWorld()->increaseScore(m_points); // also give player points here?
     }
@@ -467,12 +476,11 @@ ThiefBot::ThiefBot(StudentWorld* sw, int x, int y, int IID)
 {
     changeHP(5);
     distanceBeforeTurning = randInt(1, 6);
-    setGoodieType(0);   // Thiefbots will not have -1 as their goodieType
 }
 
-bool ThiefBot::stealGoodie()
+bool ThiefBot::stealGoodie()    // check this function and Enemy::damage()
 {
-    if (getGoodieType() == 0)   // 3: the ThiefBot has never picked up a goodie before
+    if (getGoodie() == nullptr)   // 3: the ThiefBot has never picked up a goodie before
     {
         Actor* sameSquare = getWorld()->atPosition(getX(), getY(), this);
         if (sameSquare != nullptr && !(sameSquare->canSteal())) // non-stealable item
@@ -484,8 +492,9 @@ bool ThiefBot::stealGoodie()
             int munch = randInt(1, 10);
             if (munch == 3)
             {
-                setGoodieType(sameSquare->typeOfGoodie());    // track the type of goodie collected
-                sameSquare->changeHP(-1);   // delete the goodie collected at the end of the tick
+                setGoodie(sameSquare);    // track the type of goodie collected
+                sameSquare->setVisible(false);
+                getWorld()->eraseFromList(sameSquare);
                 getWorld()->playSound(SOUND_ROBOT_MUNCH);
                 addCurrTick(-(getTicks() - 1)); // reset currTick
                 return true;
@@ -577,7 +586,6 @@ void MeanThiefBot::doSomething()
 ThiefBotFactory::ThiefBotFactory(StudentWorld* sw, int x, int y, bool mean)
  : Wall(sw, x, y, IID_ROBOT_FACTORY), meanThiefBots(mean)
 {
-    
 }
 
 void ThiefBotFactory::doSomething()

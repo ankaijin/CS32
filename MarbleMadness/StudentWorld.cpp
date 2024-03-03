@@ -101,20 +101,12 @@ void StudentWorld::createPea(int x, int y, int dir)    // CHECK
     m_actors.push_back(new Pea(this, x, y, dir));
 }
 
-void StudentWorld::createGoodie(int x, int y, int type)
+void StudentWorld::createGoodie(int x, int y, Actor* goodie)
 {
-    switch(type)
-    {
-        case 1: // extra life goodie
-            m_actors.push_back(new ExtraLife(this, x, y));
-            break;
-        case 2: // restore health goodie
-            m_actors.push_back(new RestoreHealth(this, x, y));
-            break;
-        case 3: // ammo goodie
-            m_actors.push_back(new RestoreAmmo(this, x, y));
-            break;
-    }
+    // add implementation here
+    m_actors.push_back(goodie);   // push the pointer back into the list
+    goodie->moveTo(x, y); // update its position
+    goodie->setVisible(true);   // set it back to visible
 }
 
 bool StudentWorld::noObstacles(int x, int y)   // return true if there is obstacle, false otherwise

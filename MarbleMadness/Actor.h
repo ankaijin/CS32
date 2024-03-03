@@ -18,7 +18,7 @@ class Actor : public GraphObject
     virtual void push(int x, int y) {}
     virtual void makeVisible() {}
     virtual bool damage();
-    void changeHP(int howMuch); // should be protected but is not working
+    void changeHP(int howMuch);
     int getHP() const;
     
   protected:
@@ -55,7 +55,7 @@ class Wall : public Actor
     bool damage();
 };
 
-class Marble : public Actor // make a push method for the player to push the marble
+class Marble : public Actor
 {
   public:
     Marble(StudentWorld* sw, int x, int y);
@@ -145,14 +145,15 @@ class Exit : public Actor
 class Enemy : public Actor
 {
   public:
+    ~Enemy();   // make this virtual?
     bool isObstacle() const;
     bool robotFireAt() const;
     bool canRobotMove(int x, int y) const;
     int getCurrTick() const;
     int getTicks() const;
+    Actor* getGoodie();
+    void setGoodie(Actor* goodie);
     void addCurrTick(int howMuch);
-    int getGoodieType() const;
-    void setGoodieType(int t);
     bool shoot(int direction);
     bool damage();
     
@@ -163,7 +164,7 @@ class Enemy : public Actor
     int m_points;
     int ticks;
     int currTick;
-    int goodieType; // only ThiefBot will use this
+    Actor* m_goodie; // only ThiefBot will use this
 };
 
 class RageBot : public Enemy
@@ -367,14 +368,14 @@ inline void Enemy::addCurrTick(int howMuch)
     currTick += howMuch;
 }
 
-inline int Enemy::getGoodieType() const
+inline Actor* Enemy::getGoodie()
 {
-    return goodieType;
+    return m_goodie;
 }
 
-inline void Enemy::setGoodieType(int t)
+inline void Enemy::setGoodie(Actor* goodie)
 {
-    goodieType = t;
+    m_goodie = goodie;
 }
 
 inline bool ThiefBot::isThiefBot() const

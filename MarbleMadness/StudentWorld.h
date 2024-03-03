@@ -25,12 +25,13 @@ class StudentWorld : public GameWorld
     void collectCrystal();
     int getNumCrystals();
     void createPea(int x, int y, int dir);
-    void createGoodie(int x, int y, int type);
+    void createGoodie(int x, int y, Actor* goodie);
     void completeLevel();
     bool noObstacles(int x, int y);
     bool findObstruction(int x, int y, int dir);
     int countThiefbots(int x, int y);
     void createThiefBot(int x, int y, bool mean);
+    void eraseFromList(Actor* target);
     virtual int init();
     virtual int move();
     virtual void cleanUp();
@@ -82,6 +83,12 @@ inline
 void StudentWorld::completeLevel()
 {
     levelCompleted = true;
+}
+
+inline
+void StudentWorld::eraseFromList(Actor* target) // I don't think this deletes the actual actor
+{
+    m_actors.remove(target);
 }
 
 #endif // STUDENTWORLD_H_
