@@ -5,6 +5,7 @@
 #include <iostream>
 #include <sstream>
 #include <iomanip>
+#include <algorithm>
 #include <list>
 #include <string>
 using namespace std;
@@ -15,7 +16,7 @@ GameWorld* createStudentWorld(string assetPath)
 }
 
 StudentWorld::StudentWorld(string assetPath)
-: GameWorld(assetPath), m_bonus(1000), numCrystals(0), levelCompleted(false), exitRevealed(false)
+: GameWorld(assetPath), m_player(nullptr), m_bonus(1000), numCrystals(0), levelCompleted(false), exitRevealed(false)
 {
 }
 
@@ -199,11 +200,11 @@ int StudentWorld::init()    // initializes level
     oss << setw(2) << getLevel(); // getLevel()
     Level lev(assetPath());
     string s = oss.str();
-    string curLevel = "Level" + s + ".txt";
+    string curLevel = "level" + s + ".txt"; // changed this
     Level::LoadResult result = lev.loadLevel(curLevel);
     if (result == Level::load_fail_file_not_found || getLevel() > 99)
         return GWSTATUS_PLAYER_WON;
-    if (result == Level:: load_fail_bad_format)
+    if (result == Level::load_fail_bad_format)
         return -1; // something bad happened!
     
     // otherwise the load was successful and you can access the
@@ -218,10 +219,12 @@ int StudentWorld::init()    // initializes level
                 case Level::empty:
                     break;
                 case Level::exit:
+                {
                     m_actors.push_back(new Exit(this, column, row));
                     exitX = column;
                     exitY = row;
                     break;
+                }
                 case Level::horiz_ragebot:
                     m_actors.push_back(new RageBot(this, column, row, GraphObject::right));
                     break;
@@ -244,9 +247,11 @@ int StudentWorld::init()    // initializes level
                     m_actors.push_back(new Pit(this, column, row));
                     break;
                 case Level::crystal:
+                {
                     m_actors.push_back(new Crystal(this, column, row));
                     numCrystals++;
                     break;
+                }
                 case Level::restore_health:
                     m_actors.push_back(new RestoreHealth(this, column, row));
                     break;
@@ -275,15 +280,22 @@ int StudentWorld::move()    // facilitates gameplay
  // Marbles, Crystals, Pits, Peas, the exit, etc.
  // Give each actor a chance to do something
     
-    for (Actor* currActor : m_actors)   // for each of the actors in the game world
+    for (list<Actor*>::iterator it = m_actors.begin(); it != m_actors.end(); it++)   // for each actor
     {
-        if (currActor->getHP() > 0) //  if (actor[i] is still active/alive)
+        if ((*it)->getHP() > 0) //  if (actor[i] is still active/alive)
         {
-            currActor->doSomething();   //  ask each actor to do something (e.g. move)
+            (*it)->doSomething();   //  ask each actor to do something (e.g. move)
+            
             if (m_player->getHP() <= 0) // if (thePlayerDiedDuringThisTick()) return GWSTATUS_PLAYER_DIED;
             {
                 decLives();
                 return GWSTATUS_PLAYER_DIED;
+            }
+            
+            if (levelCompleted)
+            {
+                increaseScore(getBonus());
+                return GWSTATUS_FINISHED_LEVEL;
             }
         }
     }
@@ -310,8 +322,8 @@ int StudentWorld::move()    // facilitates gameplay
 // must expose the exit so the player can advance to the next level
     if (numCrystals == 0 && !exitRevealed)
     {
-        exitRevealed = true;
         // exposeTheExitInTheMaze(), make the exit Active
+        exitRevealed = true;
         atPos(exitX, exitY)->makeVisible();
         playSound(SOUND_REVEAL_EXIT);
     }
@@ -322,18 +334,8 @@ int StudentWorld::move()    // facilitates gameplay
         decLives();
         return GWSTATUS_PLAYER_DIED;
     }
-/*
- if (thePlayerCompletedTheCurrentLevel())
- {
-    increaseScoreAppropriately();
-    return GWSTATUS_FINISHED_LEVEL;
- }
- */
-    if (levelCompleted)
-    {
-        increaseScore(getBonus());
-        return GWSTATUS_FINISHED_LEVEL;
-    }
+    
+    
 // the player hasn’t completed the current level and hasn’t died, so
 // continue playing the current level
     return GWSTATUS_CONTINUE_GAME;

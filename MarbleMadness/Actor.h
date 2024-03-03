@@ -215,7 +215,7 @@ inline int Actor::getHP() const
 
 inline void Actor::changeHP(int howMuch)
 {
-    m_HP += howMuch;
+    m_HP = (m_HP + howMuch);
 }
 
 inline StudentWorld* Actor::getWorld() const
@@ -245,7 +245,6 @@ inline bool Actor::countsInFactoryCensus() const
 
 inline bool Actor::damage()
 {
-    // ADD LATER
     return false;
 }
 

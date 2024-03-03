@@ -3,7 +3,7 @@
 #include "GameConstants.h"
 
 Actor::Actor(int IID, StudentWorld* sw, int x, int y, int dir)
- : GraphObject(IID, x, y, dir), m_world(sw)
+ : GraphObject(IID, x, y, dir), m_world(sw), m_HP(0)
 {
 }
 
@@ -11,22 +11,30 @@ void Actor::getXY(int& x, int& y, int dir)
 {
     switch(dir)
     {
-        case GraphObject::left:
+        case Actor::left:
+        {
             x = -1;
             y = 0;
             break;
-        case GraphObject::right:
+        }
+        case Actor::right:
+        {
             x = 1;
             y = 0;
             break;
-        case GraphObject::up:
+        }
+        case Actor::up:
+        {
             y = 1;
             x = 0;
             break;
-        case GraphObject::down:
+        }
+        case Actor::down:
+        {
             y = -1;
             x = 0;
             break;
+        }
     }
 }
 
@@ -39,14 +47,16 @@ Player::Player(StudentWorld* sw, int x, int y)
 
 void Player::move(int dir)
 {
-    int x = 0, y = 0;
+    setDirection(dir);    // make avatar face in the proper direction
+    int x = 0;
+    int y = 0;
     getXY(x, y, dir);
     
-    setDirection(dir);    // make avatar face in the proper direction
     bool marble = false;    // not a marble if there is no actor at that position
     Actor* adjacentActor1 = nullptr;
     if (getWorld()->noObstacles(getX() + x, getY() + y))
     {
+        
         adjacentActor1 = getWorld()->atPos(getX() + x, getY() + y);
         if (adjacentActor1 != nullptr)
             marble = adjacentActor1->canBePushed();
@@ -70,18 +80,26 @@ void Player::doSomething()
         switch(ch)
         {
             case KEY_PRESS_LEFT:
-                move(GraphObject::left);    // make avatar face left
+            {
+                move(left);    // make avatar face left
                 break;
+            }
             case KEY_PRESS_RIGHT:
-                move(GraphObject::right);    // make avatar face left
+            {
+                move(right);    // make avatar face right
                 break;
+            }
             case KEY_PRESS_UP:
-                move(GraphObject::up);    // make avatar face left
+            {
+                move(up);    // make avatar face up
                 break;
+            }
             case KEY_PRESS_DOWN:
-                move(GraphObject::down);    // make avatar face left
+            {
+                move(down);    // make avatar face down
                 break;
-            case KEY_PRESS_SPACE:   
+            }
+            case KEY_PRESS_SPACE:
             {
                 // fire a pea
                 // create new pea one block in front of the direction the player is facing
