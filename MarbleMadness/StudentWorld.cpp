@@ -175,7 +175,7 @@ int StudentWorld::countThiefbots(int x, int y)
     list<Actor*>::iterator it = m_actors.begin();
     while (it != m_actors.end())
     {
-        if ((*it)->isThiefBot())
+        if ((*it)->countsInFactoryCensus())
             if ((*it)->getX() >= (x - 3) && (*it)->getX() <= (x + 3))
                 if ((*it)->getY() >= (y - 3) && (*it)->getY() <= (y + 3))
                     count++;

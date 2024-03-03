@@ -67,6 +67,67 @@
 			<key>uniqueIdentifier</key>
 			<string>003A0D14-1708-430B-8E59-745113EF26FB</string>
 		</dict>
+		<key>05119CB4-1B8B-44C8-8962-950A349065DB</key>
+		<dict>
+			<key>auxiliaryLogUniqueIdentifier</key>
+			<string>E1F71BFA-EBAF-48A0-9E75-86269399D156</string>
+			<key>auxiliaryObservable</key>
+			<dict>
+				<key>highLevelStatus</key>
+				<string>S</string>
+				<key>totalNumberOfAnalyzerIssues</key>
+				<integer>0</integer>
+				<key>totalNumberOfErrors</key>
+				<integer>0</integer>
+				<key>totalNumberOfTestFailures</key>
+				<integer>0</integer>
+				<key>totalNumberOfWarnings</key>
+				<integer>0</integer>
+			</dict>
+			<key>className</key>
+			<string>IDESchemeActionsInvocationRecord</string>
+			<key>documentTypeString</key>
+			<string>&lt;nil&gt;</string>
+			<key>domainType</key>
+			<string>com.apple.dt.IDE.LaunchSchemeAction</string>
+			<key>fileName</key>
+			<string>Run-MarbleMadness-2024.03.02_23-25-41--0800.xcresult</string>
+			<key>hasAuxiliaryLog</key>
+			<true/>
+			<key>hasConsoleLog</key>
+			<true/>
+			<key>hasPrimaryLog</key>
+			<true/>
+			<key>primaryObservable</key>
+			<dict>
+				<key>highLevelStatus</key>
+				<string>S</string>
+				<key>totalNumberOfAnalyzerIssues</key>
+				<integer>0</integer>
+				<key>totalNumberOfErrors</key>
+				<integer>0</integer>
+				<key>totalNumberOfTestFailures</key>
+				<integer>0</integer>
+				<key>totalNumberOfWarnings</key>
+				<integer>0</integer>
+			</dict>
+			<key>schemeIdentifier-containerName</key>
+			<string>MarbleMadness project</string>
+			<key>schemeIdentifier-schemeName</key>
+			<string>MarbleMadness</string>
+			<key>schemeIdentifier-sharedScheme</key>
+			<integer>1</integer>
+			<key>signature</key>
+			<string>Run MarbleMadness</string>
+			<key>timeStartedRecording</key>
+			<real>731143541.46460998</real>
+			<key>timeStoppedRecording</key>
+			<real>0.0</real>
+			<key>title</key>
+			<string>Run MarbleMadness</string>
+			<key>uniqueIdentifier</key>
+			<string>05119CB4-1B8B-44C8-8962-950A349065DB</string>
+		</dict>
 		<key>1290D131-5B90-4BE3-B720-8AB5226D3422</key>
 		<dict>
 			<key>auxiliaryLogUniqueIdentifier</key>
@@ -433,6 +494,67 @@
 			<key>uniqueIdentifier</key>
 			<string>4D360213-9182-4B49-B03B-BB9D2BAF424E</string>
 		</dict>
+		<key>53F38113-0234-4E8A-B612-B14F004CA789</key>
+		<dict>
+			<key>auxiliaryLogUniqueIdentifier</key>
+			<string>CC51F1C2-9B81-4B3E-A8BF-8AF87E851F05</string>
+			<key>auxiliaryObservable</key>
+			<dict>
+				<key>highLevelStatus</key>
+				<string>S</string>
+				<key>totalNumberOfAnalyzerIssues</key>
+				<integer>0</integer>
+				<key>totalNumberOfErrors</key>
+				<integer>0</integer>
+				<key>totalNumberOfTestFailures</key>
+				<integer>0</integer>
+				<key>totalNumberOfWarnings</key>
+				<integer>0</integer>
+			</dict>
+			<key>className</key>
+			<string>IDESchemeActionsInvocationRecord</string>
+			<key>documentTypeString</key>
+			<string>&lt;nil&gt;</string>
+			<key>domainType</key>
+			<string>com.apple.dt.IDE.LaunchSchemeAction</string>
+			<key>fileName</key>
+			<string>Run-MarbleMadness-2024.03.02_23-06-36--0800.xcresult</string>
+			<key>hasAuxiliaryLog</key>
+			<true/>
+			<key>hasConsoleLog</key>
+			<true/>
+			<key>hasPrimaryLog</key>
+			<true/>
+			<key>primaryObservable</key>
+			<dict>
+				<key>highLevelStatus</key>
+				<string>S</string>
+				<key>totalNumberOfAnalyzerIssues</key>
+				<integer>0</integer>
+				<key>totalNumberOfErrors</key>
+				<integer>0</integer>
+				<key>totalNumberOfTestFailures</key>
+				<integer>0</integer>
+				<key>totalNumberOfWarnings</key>
+				<integer>0</integer>
+			</dict>
+			<key>schemeIdentifier-containerName</key>
+			<string>MarbleMadness project</string>
+			<key>schemeIdentifier-schemeName</key>
+			<string>MarbleMadness</string>
+			<key>schemeIdentifier-sharedScheme</key>
+			<integer>1</integer>
+			<key>signature</key>
+			<string>Run MarbleMadness</string>
+			<key>timeStartedRecording</key>
+			<real>731142396.63821805</real>
+			<key>timeStoppedRecording</key>
+			<real>0.0</real>
+			<key>title</key>
+			<string>Run MarbleMadness</string>
+			<key>uniqueIdentifier</key>
+			<string>53F38113-0234-4E8A-B612-B14F004CA789</string>
+		</dict>
 		<key>599C50FB-10E7-41AE-8E03-1DC73E13B477</key>
 		<dict>
 			<key>auxiliaryLogUniqueIdentifier</key>
@@ -493,6 +615,67 @@
 			<string>Run MarbleMadness</string>
 			<key>uniqueIdentifier</key>
 			<string>599C50FB-10E7-41AE-8E03-1DC73E13B477</string>
+		</dict>
+		<key>70698E4B-C6CE-4C48-8C26-83EF55F8A688</key>
+		<dict>
+			<key>auxiliaryLogUniqueIdentifier</key>
+			<string>AA9A6E57-1E3D-4F5B-BEE1-AE31718BB18F</string>
+			<key>auxiliaryObservable</key>
+			<dict>
+				<key>highLevelStatus</key>
+				<string>E</string>
+				<key>totalNumberOfAnalyzerIssues</key>
+				<integer>0</integer>
+				<key>totalNumberOfErrors</key>
+				<integer>1</integer>
+				<key>totalNumberOfTestFailures</key>
+				<integer>0</integer>
+				<key>totalNumberOfWarnings</key>
+				<integer>0</integer>
+			</dict>
+			<key>className</key>
+			<string>IDESchemeActionsInvocationRecord</string>
+			<key>documentTypeString</key>
+			<string>&lt;nil&gt;</string>
+			<key>domainType</key>
+			<string>com.apple.dt.IDE.LaunchSchemeAction</string>
+			<key>fileName</key>
+			<string>Run-MarbleMadness-2024.03.02_23-25-11--0800.xcresult</string>
+			<key>hasAuxiliaryLog</key>
+			<true/>
+			<key>hasConsoleLog</key>
+			<true/>
+			<key>hasPrimaryLog</key>
+			<true/>
+			<key>primaryObservable</key>
+			<dict>
+				<key>highLevelStatus</key>
+				<string>E</string>
+				<key>totalNumberOfAnalyzerIssues</key>
+				<integer>0</integer>
+				<key>totalNumberOfErrors</key>
+				<integer>1</integer>
+				<key>totalNumberOfTestFailures</key>
+				<integer>0</integer>
+				<key>totalNumberOfWarnings</key>
+				<integer>0</integer>
+			</dict>
+			<key>schemeIdentifier-containerName</key>
+			<string>MarbleMadness project</string>
+			<key>schemeIdentifier-schemeName</key>
+			<string>MarbleMadness</string>
+			<key>schemeIdentifier-sharedScheme</key>
+			<integer>1</integer>
+			<key>signature</key>
+			<string>Run MarbleMadness</string>
+			<key>timeStartedRecording</key>
+			<real>731143511.40892994</real>
+			<key>timeStoppedRecording</key>
+			<real>0.0</real>
+			<key>title</key>
+			<string>Run MarbleMadness</string>
+			<key>uniqueIdentifier</key>
+			<string>70698E4B-C6CE-4C48-8C26-83EF55F8A688</string>
 		</dict>
 		<key>8D7410ED-E641-44BA-B16A-7019CA86D239</key>
 		<dict>

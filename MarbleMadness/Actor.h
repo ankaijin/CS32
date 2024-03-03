@@ -8,12 +8,11 @@ class Actor : public GraphObject
 {
   public:
     virtual bool isObstacle() const;
-    virtual bool isMarble() const;
-    virtual bool isPit() const;
-    virtual bool isThiefBot() const;
+    virtual bool canBePushed() const;
+    virtual bool allowsMarble() const;
+    virtual bool countsInFactoryCensus() const;
     virtual bool robotFireAt() const;
     virtual bool canSteal() const;
-    virtual int typeOfGoodie() const;   // extra life: 1, restore health: 2, ammo: 3, default: 0
     virtual void doSomething() {}
     virtual void push(int x, int y) {}
     virtual void makeVisible() {}
@@ -60,7 +59,7 @@ class Marble : public Actor
   public:
     Marble(StudentWorld* sw, int x, int y);
     void push(int x, int y);
-    bool isMarble() const;
+    bool canBePushed() const;
     bool robotFireAt() const;
     bool damage();
 };
@@ -70,7 +69,7 @@ class Pit : public Actor
   public:
     Pit(StudentWorld* sw, int x, int y);
     bool isObstacle() const;
-    bool isPit() const;
+    bool allowsMarble() const;
     void doSomething();
 };
 
@@ -104,7 +103,6 @@ class ExtraLife : public Goodie
 {
   public:
     ExtraLife(StudentWorld*sw, int x, int y);
-    int typeOfGoodie() const;
     void doSomething();
 };
 
@@ -112,7 +110,6 @@ class RestoreHealth : public Goodie
 {
   public:
     RestoreHealth(StudentWorld* sw, int x, int y);
-    int typeOfGoodie() const;
     void doSomething();
 };
 
@@ -120,7 +117,6 @@ class RestoreAmmo : public Goodie
 {
   public:
     RestoreAmmo(StudentWorld* sw, int x, int y);
-    int typeOfGoodie() const;
     void doSomething();
 };
 
@@ -145,7 +141,7 @@ class Exit : public Actor
 class Enemy : public Actor
 {
   public:
-    ~Enemy();   // make this virtual?
+    ~Enemy();
     bool isObstacle() const;
     bool robotFireAt() const;
     bool canRobotMove(int x, int y) const;
@@ -164,7 +160,7 @@ class Enemy : public Actor
     int m_points;
     int ticks;
     int currTick;
-    Actor* m_goodie; // only ThiefBot will use this
+    Actor* m_goodie; // needs to be in Enemy because it is called in Enemy->damage()
 };
 
 class RageBot : public Enemy
@@ -181,7 +177,7 @@ class ThiefBot : public Enemy
 {
   public:
     ThiefBot(StudentWorld* sw, int x, int y, int IID);
-    bool isThiefBot() const;
+    bool countsInFactoryCensus() const;
     void incCurrDist();
     virtual void doSomething();
     
@@ -232,17 +228,17 @@ inline bool Actor::isObstacle() const
     return false;
 }
 
-inline bool Actor::isMarble() const
+inline bool Actor::canBePushed() const
 {
     return false;
 }
 
-inline bool Actor::isPit() const
+inline bool Actor::allowsMarble() const
 {
     return false;
 }
 
-inline bool Actor::isThiefBot() const
+inline bool Actor::countsInFactoryCensus() const
 {
     return false;
 }
@@ -263,10 +259,6 @@ inline bool Actor::canSteal() const
     return false;
 }
 
-inline int Actor::typeOfGoodie() const
-{
-    return 0;
-}
 
 inline int Player::getPeas() const
 {
@@ -298,7 +290,7 @@ inline bool Wall::isObstacle() const
     return true;
 }
 
-inline bool Marble::isMarble() const
+inline bool Marble::canBePushed() const
 {
     return true;
 }
@@ -313,7 +305,7 @@ inline bool Pit::isObstacle() const
     return true;
 }
 
-inline bool Pit::isPit() const
+inline bool Pit::allowsMarble() const
 {
     return true;
 }
@@ -321,21 +313,6 @@ inline bool Pit::isPit() const
 inline bool Goodie::canSteal() const
 {
     return true;
-}
-
-inline int ExtraLife::typeOfGoodie() const
-{
-    return 1;
-}
-
-inline int RestoreHealth::typeOfGoodie() const
-{
-    return 2;
-}
-
-inline int RestoreAmmo::typeOfGoodie() const
-{
-    return 3;
 }
 
 inline void Exit::makeVisible()
@@ -378,7 +355,7 @@ inline void Enemy::setGoodie(Actor* goodie)
     m_goodie = goodie;
 }
 
-inline bool ThiefBot::isThiefBot() const
+inline bool ThiefBot::countsInFactoryCensus() const
 {
     return true;
 }

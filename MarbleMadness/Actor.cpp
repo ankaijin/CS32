@@ -49,7 +49,7 @@ void Player::move(int dir)
     {
         adjacentActor1 = getWorld()->atPos(getX() + x, getY() + y);
         if (adjacentActor1 != nullptr)
-            marble = adjacentActor1->isMarble();
+            marble = adjacentActor1->canBePushed();
         
         if (marble)
             adjacentActor1->push(x, y);
@@ -128,7 +128,7 @@ Marble::Marble(StudentWorld* sw, int x, int y)
 void Marble::push(int x, int y)
 {
     Actor* adjacentActor2 = getWorld()->atPositionReverse(getX() + x, getY() + y, this);
-    if (adjacentActor2 == nullptr || adjacentActor2->isPit())   // empty spot or pit
+    if (adjacentActor2 == nullptr || adjacentActor2->allowsMarble())   // empty spot or pit
     {
         moveTo(getX() + x, getY() + y);
         getWorld()->getPlayer()->moveTo(getX() - x, getY() - y);
@@ -152,12 +152,12 @@ void Pit::doSomething()
     if (getHP() <= 0) return;
     // the following assumes that pea, marble, and pit will never be on the same spot
     Actor* marble = getWorld()->atPos(getX(), getY());
-    if (!(marble->isMarble()))
+    if (!(marble->canBePushed()))
         marble = nullptr;
     if (marble == nullptr)
     {
         marble = getWorld()->atPositionRev(getX(), getY());
-        if (!(marble->isMarble()))
+        if (!(marble->canBePushed()))
             marble = nullptr;
     }
     
@@ -244,7 +244,6 @@ void RestoreAmmo::doSomething()
 Pea::Pea(StudentWorld* sw, int x, int y, int dir)
  : Actor(IID_PEA, sw, x, y, dir), justCreated(true)
 {
-    // add stuff?
     changeHP(1);
 }
 
@@ -296,7 +295,7 @@ void Pea::doSomething() // Verified: pea hits robot when it is on top of newly c
         getWorld()->getPlayer()->damage();
     }
     else
-    {
+    {   // actor is on the same square
         sameSquare = getWorld()->atPositionReverse(getX(), getY(), this);
         if (sameSquare != nullptr)
         {
@@ -327,7 +326,7 @@ void Exit::doSomething()
         {
             getWorld()->playSound(SOUND_FINISHED_LEVEL);
             getWorld()->increaseScore(2000);
-            getWorld()->completeLevel();    // tell StudentWorld that player must also receive bonus points
+            getWorld()->completeLevel();    // StudentWorld gives player bonus points
         }
     }
 }
@@ -354,7 +353,7 @@ bool Enemy::canRobotMove(int x, int y) const    // should be good
     {
         adjacentActor1 = getWorld()->atPosition(x, y, this);
         if (adjacentActor1 != nullptr)
-            marble = adjacentActor1->isMarble();
+            marble = adjacentActor1->canBePushed();
         
         if (!marble && (getWorld()->getPlayer()->getX() != x || getWorld()->getPlayer()->getY() != y))
             return true;
@@ -431,7 +430,7 @@ bool Enemy::damage()
             m_goodie = nullptr; // enemy no longer has a goodie
         }
         getWorld()->playSound(SOUND_ROBOT_DIE);    // also set robot's state to dead
-        getWorld()->increaseScore(m_points); // also give player points here?
+        getWorld()->increaseScore(m_points); // also give player points here
     }
     return true;
 }
@@ -540,7 +539,7 @@ void ThiefBot::move(int dir) // verified that this does the right thing
     }
 }
 
-void ThiefBot::doSomething()    // should test this behavior extensively
+void ThiefBot::doSomething()
 {
     if (getHP() <= 0) return;   // 1
     
@@ -550,7 +549,7 @@ void ThiefBot::doSomething()    // should test this behavior extensively
         return;
     }
     
-    if (!stealGoodie())
+    if (!stealGoodie()) // 3
     {
         move(getDirection()); // 4 & 5
         addCurrTick(-(getTicks() - 1)); // reset currTick
@@ -591,7 +590,7 @@ ThiefBotFactory::ThiefBotFactory(StudentWorld* sw, int x, int y, bool mean)
 void ThiefBotFactory::doSomething()
 {
     if((getWorld()->countThiefbots(getX(), getY()) < 3) && 
-       getWorld()->atPositionRev(getX(), getY())->isThiefBot() == false)
+       getWorld()->atPositionRev(getX(), getY())->countsInFactoryCensus() == false)
     {
         int random = randInt(1, 50);
         if (random == 10)   // 1 in 50 chance
